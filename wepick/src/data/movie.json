@@ -1,0 +1,14 @@
+[
+  { "id":1, "title":"Inception", "type":"movie", "genres":["sci-fi","thriller","action"], "year":2010, "imdb":"tt1375666" },
+  { "id":2, "title":"Spirited Away", "type":"anime", "genres":["fantasy","animation"], "year":2001, "imdb":"tt0245429" },
+  { "id":3, "title":"The Office", "type":"series", "genres":["comedy"], "year":2005, "imdb":"tt0386676" },
+  { "id":4, "title":"Your Name", "type":"anime", "genres":["romance","fantasy"], "year":2016, "imdb":"tt5311514" },
+  { "id":5, "title":"The Godfather", "type":"movie", "genres":["crime","drama","gangster"], "year":1972, "imdb":"tt0068646" },
+  { "id":6, "title":"The Avengers", "type":"movie", "genres":["superhero","action"], "year":2012, "imdb":"tt0848228" },
+  { "id":7, "title":"Parasite", "type":"movie", "genres":["thriller","drama"], "year":2019, "imdb":"tt6751668" },
+  { "id":8, "title":"Se7en", "type":"movie", "genres":["thriller","crime"], "year":1995, "imdb":"tt0114369" },
+  { "id":9, "title":"The Sandlot", "type":"movie", "genres":["family","comedy"], "year":1993, "imdb":"tt0108037" },
+  { "id":10, "title":"Akira", "type":"anime", "genres":["sci-fi","action","animation"], "year":1988, "imdb":"tt0094625" },
+  { "id":11, "title":"Casablanca", "type":"movie", "genres":["romance","classic","drama"], "year":1942, "imdb":"tt0034583" },
+  { "id":12, "title":"Gladiator", "type":"movie", "genres":["action","drama"], "year":2000, "imdb":"tt0172495" }
+]
