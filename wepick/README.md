@@ -41,7 +41,9 @@ JavaScript (ES6+) логіка роботи застосунку
 📦 Встановлення
 git clone https://github.com/art1xee/WePick-
 cd wepick
+
 npm install
+
 npm run dev
 
 Після цього відкрий у браузері:
