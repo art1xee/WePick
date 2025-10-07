@@ -1,16 +1,67 @@
-# React + Vite
+🎬 WePick!
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+WePick! — це вебдодаток, який допомагає друзям, парам та сім'ям швидко вирішити, що дивитися сьогодні ввечері — фільм, серіал або аніме 🎥🍿
 
-Currently, two official plugins are available:
+🚀 Опис проєкту
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+WePick! — це інтерактивний застосунок, що дозволяє двом або більше користувачам з різними вподобаннями знайти спільний контент для перегляду.
+Додаток крок за кроком допомагає вибрати:
 
-## React Compiler
+Тип контенту (фільм / серіал / аніме)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Партнера — друга або популярного персонажа
 
-## Expanding the ESLint configuration
+Жанри, які користувач не хоче і хоче дивитися
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Бажану декаду фільмів
+
+Після цього WePick знаходить ідеальний контент через TMDB API
+
+🧩 Основні функції
+
+🌐 Мультимовність: Українська (за замовчуванням), англійська, російська
+
+🎭 Вибір партнера: Друг або персонаж (з унікальними вподобаннями)
+
+🎞 Рекомендаційна система: Алгоритм підбору спільних жанрів
+
+🧠 Інтеграція з TMDB API: Отримання реальних фільмів, описів, постерів і посилань на IMDb
+
+🧱 Простий мінімалістичний UI
+
+🔁 Кнопка “Почати знову” для швидкого перезапуску
+
+⚙️ Технології
+Технологія Опис
+React (Vite) основний фреймворк для SPA
+TMDB API база реальних фільмів, серіалів, аніме
+CSS / Tailwind (опціонально) стилізація і анімації
+JavaScript (ES6+) логіка роботи застосунку
+📦 Встановлення
+git clone https://github.com/yourusername/wepick.git
+cd wepick
+npm install
+npm run dev
+
+Після цього відкрий у браузері:
+
+http://localhost:5173
+
+🔑 Налаштування TMDB API
+
+Отримай API key з https://www.themoviedb.org
+
+Створи файл .env у корені проекту:
+
+VITE*TMDB_KEY=тут*твій*API*ключ
+
+Перезапусти проєкт.
+
+🖼️ Прев’ю
+
+💡 Автор
+
+Максим Зубрицький
+Студент-програміст, React-розробник, автор ідеї WePick!
+
+“Припиніть сперечатися про те, що дивитися — просто дайте WePick вирішити за вас 😉”
