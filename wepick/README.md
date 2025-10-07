@@ -38,7 +38,7 @@ TMDB API база реальних фільмів, серіалів, аніме
 CSS / Tailwind (опціонально) стилізація і анімації
 JavaScript (ES6+) логіка роботи застосунку
 📦 Встановлення
-git clone https://github.com/yourusername/wepick.git
+git clone https://github.com/art1xee/WePick-
 cd wepick
 npm install
 npm run dev
