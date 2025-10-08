@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import Landing from "./screens/Loading";
-import ContentType from "./screens/ContentType";
-import PartnerChoice from "./screens/PartnerChoice";
-import CharacterGridOrFriend from "./screens/CharacterGridOrFriend";
-import PreferencesFlow from "./screens/PreferencesFlow";
-import DecadePicker from "./screens/DecadePicker";
-import Summary from "./screens/Summary";
-import Results from "./screens/Results";
-import Header from "./components/Header";
+// ИСПРАВЛЕНИЕ: Добавлены явные расширения .jsx для устранения ошибок импорта
+import LandingScreen from "./screens/Loading.jsx"; 
+import ContentType from "./screens/ContentType.jsx";
+import PartnerChoice from "./screens/PartnerChoice.jsx";
+import CharacterGridOrFriend from "./screens/CharacterGridOrFriend.jsx";
+import PreferencesFlow from "./screens/PreferencesFlow.jsx";
+import Summary from "./screens/Summary.jsx";
+import Results from "./screens/Results.jsx";
+import Header from "./components/Header.jsx";
 const moviesData = []; 
 
 const initialState = () => ({
@@ -67,7 +67,8 @@ export default function App() {
     const sample = (arr,n)=>{
       const a = [...arr];
       const out = [];
-      while(out.length < n && a.length){
+      const len = Math.min(n, a.length); // Ensure we don't try to sample more than available
+      while(out.length < len){
         const i = Math.floor(Math.random()*a.length);
         out.push(a.splice(i,1)[0]);
       }
@@ -80,6 +81,10 @@ export default function App() {
     // push second participant with char info
     setState(s => {
       const participants = [...s.participants];
+      // Check if participants[1] exists before assignment
+      if (participants.length < 2) {
+          participants.push({});
+      }
       participants[1] = { name: char.name, dislikes, likes, decade, isCharacter: true };
       return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
     });
@@ -120,7 +125,8 @@ export default function App() {
       <Header lang={state.lang} setLang={setLang} resetAll={resetAll} />
       <div className="container">
         {state.step === 1 && (
-          <Landing
+          // Использование LandingScreen (импортированного как Loading)
+          <LandingScreen
             lang={state.lang}
             onNext={(name) => {
               updateParticipant(0, { name });
@@ -132,6 +138,9 @@ export default function App() {
         {state.step === 2 && (
           <ContentType
             lang={state.lang}
+            // === ПЕРЕДАЧА ИМЕНИ: Передаем имя пользователя ===
+            userName={state.participants[0].name}
+            // ==================================================
             value={state.contentType}
             onSelect={(type) => update({ contentType: type })}
             onNext={() => nextStep()}
@@ -158,6 +167,10 @@ export default function App() {
               // set participant 2 name and continue to prefs for participant1
               update(s => {
                 const participants = [...s.participants];
+                // Check if participants[1] exists before assignment
+                if (participants.length < 2) {
+                    participants.push({});
+                }
                 participants[1].name = name;
                 return { ...s, participants, step: s.step + 1 };
               });

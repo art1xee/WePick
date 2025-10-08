@@ -1,37 +1,62 @@
 import React from "react";
-import Loading from "./Loading";
-const labels = { ua: { title: "Виберіть, який контент ви хочете подивитися", next: "Далі" }, 
-ru: { title: "Выберите контент, который вы хотите посмотреть", next: "Далее" }, 
-en: { title: "Choose content which you wanna - watch", next: "Next" } };
+import Loading from "./Loading"; // NOTE: This component is likely named Loading.jsx on disk
 
-export default function ContentType({ lang="ua", value, onSelect, onNext }) {
+const labels = { 
+  ua: { 
+    title: "Привіт {name}! Оберіть, контент який ви хочете подивитися.", 
+    next: "Далі!" 
+  }, 
+  ru: { 
+    title: "Привет {name}! Выберите контент, который вы хотите посмотреть.", 
+    next: "Далее!" 
+  }, 
+  en: { 
+    title: "Hello {name}! Choose content which you wanna watch.", 
+    next: "Next!" 
+  } 
+};
+
+// NOTE: Added userName prop to display user name
+export default function ContentType({ lang = "ua", userName, value, onSelect, onNext }) {
   const options = [
-    { key: "movie", label: { ua: "Фільм", ru: "Фильм", en: "Movie" } },
-    { key: "series", label: { ua: "Серіал", ru: "Сериал", en: "Series" } },
-    { key: "anime", label: { ua: "Аніме", ru: "Аниме", en: "Anime" } },
+    { key: "movie", label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" } },
+    { key: "series", label: { ua: "Серіали", ru: "Сериалы", en: "Series" } },
+    { key: "anime", label: { ua: "Аніме", ru: "Аниме", en: "Anime's" } },
   ];
+
+  // Logic to replace {name} placeholder with actual userName
+  const getTitle = () => {
+    const template = labels[lang].title;
+    // Replace placeholder {name} with the actual userName passed from App.jsx
+    return template.replace("{name}", userName || "(невідоме ім'я)");
+  };
 
   return (
     <div className="screen-content-type">
-      <h2>{labels[lang].title}</h2>
+      <div className="scree-content-title-h2">
+        <h2>{getTitle()}</h2>
+      </div>
       <div className="type-buttons">
         {options.map(o => (
           <button
             key={o.key}
             onClick={() => onSelect(o.key)}
-            className={value === o.key ? "btn btn-active" : "btn"}
+            // Dynamic class: e.g., "btn btn-active-movie"
+            className={value === o.key ? `btn btn-active-type btn-active-${o.key}` : "btn"}
           >
             {o.label[lang]}
           </button>
         ))}
       </div>
       <div className="button-type" style={{ marginTop: 20 }}>
-        <button className={`btn ${value ? "btn-active" : "btn-disabled"}`} disabled={!value} onClick={onNext}>{labels[lang].next}</button>
+        <button 
+          className={`btn ${value ? "btn-active" : "btn-disabled"}`} 
+          disabled={!value} 
+          onClick={onNext}
+        >
+          {labels[lang].next}
+        </button>
       </div>
     </div>
   );
 }
-/*
-TODO: when user write his name in Loading.jsx - show it in the top of this screen (ContentType.jsx)
-TODO: when user choose content type - make button`s movie, series, anime active (change style)
-*/
