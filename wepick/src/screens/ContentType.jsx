@@ -1,5 +1,5 @@
 import React from "react";
-
+import Loading from "./Loading";
 const labels = { ua: { title: "Виберіть, який контент ви хочете подивитися", next: "Далі" }, ru: { title: "Выберите контент", next: "Далее" }, en: { title: "Choose content", next: "Next" } };
 
 export default function ContentType({ lang="ua", value, onSelect, onNext }) {
@@ -10,7 +10,7 @@ export default function ContentType({ lang="ua", value, onSelect, onNext }) {
   ];
 
   return (
-    <div className="screen">
+    <div className="screen-content-type">
       <h2>{labels[lang].title}</h2>
       <div className="type-buttons">
         {options.map(o => (
@@ -23,7 +23,7 @@ export default function ContentType({ lang="ua", value, onSelect, onNext }) {
           </button>
         ))}
       </div>
-      <div style={{ marginTop: 20 }}>
+      <div className="button-type" style={{ marginTop: 20 }}>
         <button className={`btn ${value ? "btn-active" : "btn-disabled"}`} disabled={!value} onClick={onNext}>{labels[lang].next}</button>
       </div>
     </div>

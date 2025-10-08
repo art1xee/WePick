@@ -3,7 +3,7 @@
   --card: #fff;
   --accent: #ff0037;
   --muted: #8b8b8b;
-   font-family: Inter, Segoe UI, Roboto, "Helvetica Neue", Arial;
+   font-family: "VT323", monospace;
 }
 
 * {
@@ -41,7 +41,17 @@ body {
 .header-right {
   display: flex;
   align-items: center;
+  color: #111;
   gap: 10px;
+}
+.menu-button {
+  font-family: "VT323", monospace;
+  padding: 12px 40px;
+  border-radius: 11px;
+  border: 0;
+  font-size: 25px;
+  cursor: pointer;
+  background: #ddd;
 }
 .hamburger {
   border: 0;
@@ -59,9 +69,10 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
-.screen {
+.screen-content-type {
   background: var(--card);
   padding: 24px;
+  background-color: #f8e10e;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
   min-height: 320px;
@@ -72,7 +83,6 @@ body {
   justify-content: center;
   align-items: center;
   margin-top: 40px;
-  margin-bottom: 12px;
 }
 .film-logo {
   font-size: 200px;
@@ -94,10 +104,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;  /* измените с center на flex-start */
-  padding-top: 100px;  /* добавьте отступ сверху */
+  padding-top: 100px;  /*добавьте отступ сверху */
   min-height: 50vh;
   min-width: 50vh;
-  background-color: #f8ea4f;
+  border-radius: 30px;
+  background-color: #FFC840;
 }
 .screen-landing {
   max-width: 400px;
@@ -109,14 +120,18 @@ body {
 .landing-text {
   font-size: 26px;
   text-align: center;
-  margin-top: 40px;
+  color: #015C65;
+  margin-top: 1px;
   margin-bottom: 12px;
 }
 .name-input {
-  display: block;
+  font-family: "VT323", monospace;
+  display: flex;
+  text-align: center;
   width: 30%;
   padding: 10px;
   font-size: 16px;
+  margin-top: 20px;
   margin-bottom: 12px;
   border-radius: 8px;
   border: 1px solid #111;
@@ -131,6 +146,7 @@ body {
 .btn {
   font-family: "VT323", monospace;
   padding: 12px 40px;
+  margin-bottom: 35px;
   border-radius: 11px;
   border: 0;
   font-size: 25px;
@@ -146,7 +162,15 @@ body {
   cursor:pointer;
 }
 
+.button-type {
+  display: flex;
+  justify-content: center;
+  color: #111;
+  margin-top: 20px;
+}
 .type-buttons {
+  align-items: center;
+  justify-content: center;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;

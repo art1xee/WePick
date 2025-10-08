@@ -17,7 +17,9 @@ export default function Header({ lang, setLang, resetAll }) {
         {open && (
           <div className="menu">
             <p><strong>WePick!</strong> — допомагає обрати спільний контент.</p>
-            <button onClick={resetAll}>Почати спочатку</button>
+          <div className="menu-button"> 
+             <button onClick={resetAll}>Почати спочатку</button>
+          </div>
             <p style={{fontSize:12,opacity:0.8}}>Версія MVP — локальна база даних.</p>
           </div>
         )}
@@ -25,3 +27,10 @@ export default function Header({ lang, setLang, resetAll }) {
     </header>
   );
 }
+
+/*
+TODO: change style in reset button
+TODO: add some new text in menu + info about app
+TODO: when user open menu and he wanna close it he can click outside menu to close it
+TODO: add animation for menu open/close
+*/
