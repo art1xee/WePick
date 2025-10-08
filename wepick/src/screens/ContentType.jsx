@@ -1,6 +1,8 @@
 import React from "react";
 import Loading from "./Loading";
-const labels = { ua: { title: "Виберіть, який контент ви хочете подивитися", next: "Далі" }, ru: { title: "Выберите контент", next: "Далее" }, en: { title: "Choose content", next: "Next" } };
+const labels = { ua: { title: "Виберіть, який контент ви хочете подивитися", next: "Далі" }, 
+ru: { title: "Выберите контент, который вы хотите посмотреть", next: "Далее" }, 
+en: { title: "Choose content which you wanna - watch", next: "Next" } };
 
 export default function ContentType({ lang="ua", value, onSelect, onNext }) {
   const options = [
@@ -29,3 +31,7 @@ export default function ContentType({ lang="ua", value, onSelect, onNext }) {
     </div>
   );
 }
+/*
+TODO: when user write his name in Loading.jsx - show it in the top of this screen (ContentType.jsx)
+TODO: when user choose content type - make button`s movie, series, anime active (change style)
+*/

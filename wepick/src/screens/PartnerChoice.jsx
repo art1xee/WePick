@@ -11,6 +11,8 @@ export default function PartnerChoice({ onChoose }) {
     </div>
   );
 }
-/*TODO: when user choose partner - make button`s active (change style)
-TODO: when user choose popular character - show select with characters (from local db)
+/*
+TODO: chanse style for buttons maybe add some pictures
+TODO: add button "Next"
+TODO: Change style for this screen
 */

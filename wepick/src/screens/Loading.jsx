@@ -25,7 +25,7 @@ export default function Landing({ lang = "ua", onNext }) {
     <div className="screen landing">
       <div className="logo-anim" aria-hidden>
         <div className="film-logo">
-          <img src="/src/images/logo_WePick.png" alt="Film Reel" width={400}/>
+          <img src="/src/images/logo_wepick_pixel.png" alt="Film Reel" width={400}/>
           </div>
       </div>
 
