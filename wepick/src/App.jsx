@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// ИСПРАВЛЕНИЕ: Добавлены явные расширения .jsx для устранения ошибок импорта
 import LandingScreen from "./screens/Loading.jsx";
 import ContentType from "./screens/ContentType.jsx";
 import PartnerChoice from "./screens/PartnerChoice.jsx";

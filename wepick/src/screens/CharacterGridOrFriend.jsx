@@ -2,95 +2,101 @@ import React, { useState } from "react";
 
 /* simple characters */
 const characters = [
-  { id: "sherlock", name: "Sherlock" },
-  { id: "naruto", name: "Naruto" },
-  { id: "luffy", name: "Luffy" },
-  { id: "tony", name: "Tony" },
-  { id: "miyazaki", name: "Miyazaki" },
-  { id: "eleven", name: "Eleven" },
-  { id: "gandalf", name: "Gandalf" },
-  { id: "leia", name: "Leia" },
-  { id: "spike", name: "Spike" },
+  { id: "Joker", name: "Joker" },
+  { id: "luffy", name: "Monkey D.Luffy" },
+  { id: "chopper", name: "Chopper" },
+  { id: "sherlock", name: "Sherlock" },
+  { id: "levi-ackerman", name: "Levi Ackerman" },
+  { id: "walter-white", name: "Walter White" },
+  { id: "john-wick", name: "John Wick" },
+  { id: "naruto", name: "Naruto" },
+  { id: "geralt-of-rivia", name: "Geralt" },
 ];
 
-export default function CharacterGridOrFriend({
-  lang = "ua",
-  onChoose,
-  onNext,
-  value,
-  partnerType,
-  onCharacter,
-  onFriendName,
-}) {
-  const [name, setName] = useState("");
+const labels = {
+  ua: { 
+    title_char: "З ким ви хочете зіграти в WePick?", 
+    title_friend: "Передайте пристрій другу — нехай введе своє ім'я",
+    placeholder: "Ім'я друга",
+    next: "Далі!" 
+  },
+  ru: { 
+    title_char: "С кем вы хотите сыграть в WePick?", 
+    title_friend: "Передайте устройство другу — пусть введёт своё имя",
+    placeholder: "Имя друга",
+    next: "Далее!" 
+  },
+  en: { 
+    title_char: "Who do you want to play WePick with?", 
+    title_friend: "Pass the device to a friend — let them enter their name",
+    placeholder: "Friend's name",
+    next: "Next!" 
+  }
+};
 
-  //consts for Friend Screen:
-  const labelsFriend = {
-    ua: {
-      title: "Передай пристрій другу — нехай введе своє ім'я.",
-      placeholder: "Ім'я друга",
-      next: "Далі!",
-    },
-    ru: {
-      title: "Передай устройство своему другу - пусть введёт своё имя.",
-      placeholder: "Имя друга",
-      next: "Далее!",
-    },
-    en: {
-      title: "Pass the device to your friend — let them enter his name.",
-      placeholder: "Friend name",
-      next: "Next!",
-    },
-  };
+export default function CharacterGridOrFriend({ lang = 'ua', partnerType, onCharacter, onFriendName }) {
+  const [name, setName] = useState("");
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
 
-  const getTitleFriend = () => {
-    const template = labelsFriend[lang].title;
-    return template;
-  };
+  // Убедимся, что выбранный язык существует, иначе используем 'ua'
+  const t = labels[lang] || labels.ua;
 
-  const getPlaceholderFriend = () => {
-    const template = labelsFriend[lang].placeholder;
-    return template;
-  };
+  if (partnerType === "popular-character") {
+    const handleCharacterSelect = (char) => {
+      setSelectedCharacter(char);
+    };
 
-  if (partnerType === "popular-character") {
-    return (
-      <div className="screen">
-        <h2>З ким ви хочете зіграти в WePick?</h2>
-        <div className="grid-3">
-          {characters.map((c) => (
-            <div
-              key={c.id}
-              className="char-card"
-              onClick={() => onCharacter(c)}
-            >
-              <div className="char-avatar">{c.name[0]}</div>
-              <div>{c.name}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+    const handleNext = () => {
+      if (selectedCharacter) {
+        onCharacter(selectedCharacter);
+      }
+    };
 
-  return (
-    <div className="friend-screen">
-      <h2 className="friend-screen-h2">{getTitleFriend()}</h2>
-      <input
-        className="friend-input"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder={getPlaceholderFriend()}
-      />
+    return (
+      <div className="character-screen">
+        <h2>{t.title_char}</h2>
+        <div className="grid-3">
+          {characters.map((c) => (
+            <div
+              key={c.id}
+              className={`char-card ${selectedCharacter && selectedCharacter.id === c.id ? "char-card-selected" : ""}`}
+              onClick={() => handleCharacterSelect(c)}
+            >
+              <div className="char-avatar">{c.name[0]}</div>
+              <div>{c.name}</div>
+            </div>
+          ))}
+        </div>
 
-        <button
-        className={`btn ${name.trim() ? "btn-active" : "btn-disabled"}`}
-        disabled={!name.trim()}
-        onClick={() => onFriendName(name.trim())}
-      >
-        {labelsFriend[lang].next}
-      </button>
+        <div className="center-btn" style={{ marginTop: 40 }}>
+          <button
+            className={`btn ${selectedCharacter ? "btn-active" : "btn-disabled"}`}
+            disabled={!selectedCharacter}
+            onClick={handleNext}
+          >
+            {t.next}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-    </div>
-  );
+  // Блок для выбора друга
+  return (
+    <div className="friend-screen"> 
+      <h2 className="friend-screen-h2">{t.title_friend}</h2>
+      <input 
+        className="friend-input" 
+        value={name} 
+        onChange={e=>setName(e.target.value)} 
+        placeholder={t.placeholder} />
+      <button 
+        className={`btn ${name.trim()? "btn-active":"btn-disabled"}`} 
+        disabled={!name.trim()} 
+        onClick={()=>onFriendName(name.trim())}
+      >
+        {t.next}
+      </button>
+    </div>
+  );
 }
