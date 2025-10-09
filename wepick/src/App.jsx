@@ -7,6 +7,8 @@ import PreferencesFlow from "./screens/PreferencesFlow.jsx";
 import Summary from "./screens/Summary.jsx";
 import Results from "./screens/Results.jsx";
 import Header from "./components/Header.jsx";
+// =================================================================
+
 const moviesData = [];
 
 const contentTypeOptions = [
@@ -26,6 +28,8 @@ const contentTypeOptions = [
     label: { ua: "Аніме", ru: "Аниме", en: "Anime's" },
   },
 ];
+
+
 
 const initialState = () => ({
   lang: "ua",

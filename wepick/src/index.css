@@ -429,9 +429,28 @@ body {
   color: #111 ;
 } 
 
-.char-card-selected{
+.char-card-selected {
   color: var(--accent);
 }
+
+.char-image{
+   width: 70px;         /* Размер изображения */
+  height: 70px;        /* Размер изображения */
+  border-radius: 50%;  /* Делаем круглым */
+  object-fit: cover;   /* Важно: чтобы изображение заполняло круг без искажений */
+  margin-bottom: 8px;
+  border: 4px solid #fff; /* Белая рамка, чтобы отделить от фона карточки */
+}
+
+.char-card{
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрируем по горизонтали */
+  padding: 10px;
+  /* ... остальные стили char-card (границы, тени) */ 
+}
+
+
 
 
 
