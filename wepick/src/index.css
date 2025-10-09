@@ -431,10 +431,12 @@ body {
 
 .char-card-selected {
   color: var(--accent);
+   border: var(--accent) solid 1px;
+   display: flex;
 }
 
 .char-image{
-   width: 70px;         /* Размер изображения */
+  width: 70px;         /* Размер изображения */
   height: 70px;        /* Размер изображения */
   border-radius: 50%;  /* Делаем круглым */
   object-fit: cover;   /* Важно: чтобы изображение заполняло круг без искажений */
