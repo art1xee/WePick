@@ -254,7 +254,6 @@ export default function App() {
               update({ partnerType: selectedOption.key })
             }
             onNext={() => {
-              // БАГ 2: Проверяем partnerType для логики ensureSecondParticipant
               if (state.partnerType === "friend") {
                 ensureSecondParticipant();
               }
@@ -265,7 +264,8 @@ export default function App() {
                {" "}
         {state.step === 4 && (
           <CharacterGridOrFriend
-            partnerType={state.partnerType}
+          lang={state.lang}  
+          partnerType={state.partnerType}
             onCharacter={(char) => createCharacterParticipant(char)}
             onFriendName={(name) => {
               // set participant 2 name and continue to prefs for participant1

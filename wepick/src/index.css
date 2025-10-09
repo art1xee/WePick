@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 /* ================================================= */
 /* 🟣 1. VARIABLES & BASE SETTINGS */
@@ -11,18 +11,18 @@
   --muted: #8b8b8b;
 
   --btn-reset-bg: #f8e10e;
-  --btn-choose-type: #162EAE;
-  --text-color: #015C65;
-  --card-screen: #FFC840;
+  --btn-choose-type: #162eae;
+  --text-color: #015c65;
+  --card-screen: #ffc840;
 
   /* Content Type Colors */
-  --color-movie: #A67A00; 
-  --color-series: #39AECF; 
-  --color-anime: #DB62C4; 
+  --color-movie: #a67a00;
+  --color-series: #39aecf;
+  --color-anime: #db62c4;
 
   /*Partner Type Color*/
-  --color-friend: #E1FA71;
-  --color--popular-character: #62AA2A;
+  --color-friend: #e1fa71;
+  --color--popular-character: #62aa2a;
 }
 
 * {
@@ -30,7 +30,7 @@
 }
 
 body {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   margin: 0;
   font-size: 16px;
   background: var(--bg);
@@ -72,7 +72,7 @@ body {
 }
 
 .lang-select {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   padding: 8px 12px;
   border-radius: 8px;
   border: 2px solid var(--btn-reset-bg);
@@ -127,7 +127,6 @@ body {
 
 .menu-content {
   padding: 15px;
-  
 }
 .menu-title {
   margin-top: 0;
@@ -158,7 +157,7 @@ body {
 /* ================================================= */
 
 .btn {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   padding: 12px 40px;
   margin-bottom: 35px;
   border-radius: 11px;
@@ -199,16 +198,15 @@ body {
 }
 
 /* Partner choise active buttons */
-.btn-active-friend { 
+.btn-active-friend {
   background-color: var(--color-friend);
   color: #111;
 }
 
-.btn-active-popular-character { 
+.btn-active-popular-character {
   background-color: var(--color--popular-character);
   color: #111;
 }
-
 
 .btn-disabled {
   opacity: 0.6;
@@ -218,7 +216,7 @@ body {
 
 /* Reset Button */
 .btn-reset {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   padding: 10px 25px;
   border-radius: 11px;
   border: 4px solid #111;
@@ -235,7 +233,7 @@ body {
 }
 
 .name-input {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   display: flex;
   text-align: center;
   width: 30%;
@@ -280,8 +278,13 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .screen-landing {
@@ -333,13 +336,11 @@ body {
   margin-top: 40px;
 }
 
-
-
 /*==================================================*/
 /* 8. PARTNER CHOISE */
 /*==================================================*/
 
-.partner-screen{
+.partner-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -366,13 +367,45 @@ body {
   gap: 20px;
   margin-top: 40px;
 
-  display: flex; /* Делаем кнопку flex-контейнером */
-  align-items: flex-end; /* Выравниваем элементы по нижнему краю */
-  justify-content: center; /* Центрируем по горизонтали */
-  text-align: center; /* Центрируем текст внутри каждой строки */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
 }
 
+/*==================================================*/
+/* 8. FRIEND SCREEN */
+/*==================================================*/
+.friend-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 70px;
+  min-height: 23vh;
+  min-width: 50vh;
+  border-radius: 30px;
+  background-color: var(--card-screen);
+  color: var(--text-color);
+}
 
+.friend-input {
+  font-family: "Press Start 2P", cursive;
+  display: flex;
+  text-align: center;
+  width: 30%;
+  padding: 10px;
+  font-size: 12px;
+  margin: 20px 0 12px;
+  border-radius: 8px;
+  border: 1px solid #111;
+}
+
+.friend-screen-h2 {
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+}
 
 /* ================================================= */
 /* ⚪ . GENERIC & UTILITY */
