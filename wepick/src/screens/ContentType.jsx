@@ -19,9 +19,9 @@ const labels = {
 // NOTE: Added userName prop to display user name
 export default function ContentType({ lang = "ua", userName, value, onSelect, onNext }) {
   const options = [
-    { key: "movie", label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" } },
-    { key: "series", label: { ua: "Серіали", ru: "Сериалы", en: "Series" } },
-    { key: "anime", label: { ua: "Аніме", ru: "Аниме", en: "Anime's" } },
+    { key: "movie", content: {ua: "Фільмів", ru: "Фильмов", en:"Movie"},  label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" } },
+    { key: "series",content: {ua: "Серіалів", ru: "Сериалов", en:"Series"}, label: { ua: "Серіали", ru: "Сериалы", en: "Series" } },
+    { key: "anime",content: {ua: "Аніме", ru: "Аниме", en:"Anime"}, label: { ua: "Аніме", ru: "Аниме", en: "Anime's" } },
   ];
 
   // Logic to replace {name} placeholder with actual userName
@@ -40,7 +40,7 @@ export default function ContentType({ lang = "ua", userName, value, onSelect, on
         {options.map(o => (
           <button
             key={o.key}
-            onClick={() => onSelect(o.key)}
+            onClick={() => onSelect(o)}
             // Dynamic class: e.g., "btn btn-active-movie"
             className={value === o.key ? `btn btn-active-type btn-active-${o.key}` : "btn"}
           >

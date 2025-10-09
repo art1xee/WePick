@@ -19,6 +19,10 @@
   --color-movie: #A67A00; 
   --color-series: #39AECF; 
   --color-anime: #DB62C4; 
+
+  /*Partner Type Color*/
+  --color-friend: #E1FA71;
+  --color--popular-character: #62AA2A;
 }
 
 * {
@@ -164,6 +168,11 @@ body {
   background: #ddd;
   box-shadow: 4px 4px 0px #111;
   transition: all 0.1s ease;
+
+  display: flex; /* Делаем кнопку flex-контейнером */
+  align-items: flex-end; /* Выравниваем элементы по нижнему краю */
+  justify-content: center; /* Центрируем по горизонтали */
+  text-align: center; /* Центрируем текст внутри каждой строки */
 }
 .btn:active {
   transform: translate(4px, 4px);
@@ -188,6 +197,18 @@ body {
   background: var(--color-anime);
   color: #111;
 }
+
+/* Partner choise active buttons */
+.btn-active-friend { 
+  background-color: var(--color-friend);
+  color: #111;
+}
+
+.btn-active-popular-character { 
+  background-color: var(--color--popular-character);
+  color: #111;
+}
+
 
 .btn-disabled {
   opacity: 0.6;
@@ -312,8 +333,49 @@ body {
   margin-top: 40px;
 }
 
+
+
+/*==================================================*/
+/* 8. PARTNER CHOISE */
+/*==================================================*/
+
+.partner-screen{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 70px;
+  min-height: 23vh;
+  min-width: 50vh;
+  border-radius: 30px;
+  background-color: var(--card-screen);
+  color: var(--text-color);
+}
+
+.partner-screen-h2 {
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.button-type,
+.type-buttons-partner {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 40px;
+
+  display: flex; /* Делаем кнопку flex-контейнером */
+  align-items: flex-end; /* Выравниваем элементы по нижнему краю */
+  justify-content: center; /* Центрируем по горизонтали */
+  text-align: center; /* Центрируем текст внутри каждой строки */
+}
+
+
+
 /* ================================================= */
-/* ⚪ 7. GENERIC & UTILITY */
+/* ⚪ . GENERIC & UTILITY */
 /* ================================================= */
 
 .genre {

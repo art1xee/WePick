@@ -16,7 +16,7 @@ const characters = [
 export default function CharacterGridOrFriend({ partnerType, onCharacter, onFriendName }) {
   const [name, setName] = useState("");
 
-  if (partnerType === "character") {
+  if (partnerType === "popular-character") {
     return (
       <div className="screen">
         <h2>З ким ви хочете зіграти в WePick?</h2>
