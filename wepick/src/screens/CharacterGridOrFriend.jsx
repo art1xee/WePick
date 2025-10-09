@@ -18,7 +18,7 @@ const characters = [
   { id: "levi-ackerman", name: "Levi Ackerman", image: leviImg },
   { id: "walter-white", name: "Walter White", image: walterWhiteImg },
   { id: "john-wick", name: "John Wick", image: johnWickImg },
-  { id: "better-call-saul", name: "Saul", image: saulImg }, // В App.jsx имя 'Saul Good Man', здесь 'Saul' — это может вызвать путаницу
+  { id: "better-call-saul", name: "Saul Good Man", image: saulImg }, // В App.jsx имя 'Saul Good Man', здесь 'Saul' — это может вызвать путаницу
   { id: "arthur-morgan", name: "Arthur M.", image: arthurMorganImg },
 ];
 
