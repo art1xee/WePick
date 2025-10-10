@@ -19,18 +19,6 @@ const labels = {
   },
 };
 
-const optionsPartner = [
-  { key: "friend", label: { ua: "Друг", ru: "Друг", en: "Friend" } },
-  {
-    key: "popular-character",
-    label: {
-      ua: "Популярний\n персонаж",
-      ru: "Популярный\n персонаж",
-      en: "Popular\n character",
-    },
-  },
-];
-
 // const getContent <-- get content type from ContentType.jsx
 
 export default function PartnerChoice({

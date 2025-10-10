@@ -77,7 +77,7 @@ export default function CharacterGridOrFriend({ lang = 'ua', partnerType, onChar
           ))}
         </div>
 
-        <div className="center-btn" style={{ marginTop: 40 }}>
+        <div className="center-btn-grid" style={{ marginTop: 40 }}>
           <button
             className={`btn ${selectedCharacter ? "btn-active" : "btn-disabled"}`}
             disabled={!selectedCharacter}

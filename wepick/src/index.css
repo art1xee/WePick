@@ -173,6 +173,11 @@ body {
   justify-content: center; /* Центрируем по горизонтали */
   text-align: center; /* Центрируем текст внутри каждой строки */
 }
+.center-btn-grid{
+  padding: 10px;
+
+}
+
 .btn:active {
   transform: translate(4px, 4px);
   box-shadow: none;
@@ -409,7 +414,7 @@ body {
 }
 
 /*==================================================*/
-/* 10. FRIEND SCREEN */
+/* 10. CHARACTER SCREEN */
 /*==================================================*/
 
 .character-screen{
@@ -431,8 +436,8 @@ body {
 
 .char-card-selected {
   color: var(--accent);
-   border: var(--accent) solid 1px;
-   display: flex;
+  border: var(--accent) solid 1px;
+  display: flex;
 }
 
 .char-image{
@@ -452,10 +457,44 @@ body {
   padding: 10px;
   /* ... остальные стили char-card (границы, тени) */ 
 }
+  
 
+/*==================================================*/
+/* 11. DISLIKES 3 GENRE SCREEN */
+/*==================================================*/
+.dislikes-screen, /* Добавляем класс родительского div из PreferencesFlow */
+.genres-screen{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 70px;
+  min-height: 21vh;
+  min-width: 55vh;
+  border-radius: 30px;
+  background-color: var(--card-screen);
+  color: var(--text-color);
+}
 
+.decade-chooser-container{
+  background-color: var(--btn-reset-bg);
+  border-radius: 8px;
+  width: 37vh;
+  display: flex;
+  border: #111 solid 1px;
+  padding: 10px;
+  align-items: center;
+}
 
-
+.decade-spinner {
+  font-family: "Press Start 2P", cursive;
+  width: 30%;
+  padding: 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: var(--muted) solid 1px;
+  width: 10vh;
+}
 
 /* ================================================= */
 /* ⚪ . GENERIC & UTILITY */
@@ -486,6 +525,7 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-top: 12px;
+  padding: 20px;
 }
 
 .char-card {
