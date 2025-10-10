@@ -436,8 +436,8 @@ body {
 }
 
 .char-image{
-  width: 70px;         /* Размер изображения */
-  height: 70px;        /* Размер изображения */
+  width: 80px;         /* Размер изображения */
+  height: 80px;        /* Размер изображения */
   border-radius: 50%;  /* Делаем круглым */
   object-fit: cover;   /* Важно: чтобы изображение заполняло круг без искажений */
   margin-bottom: 8px;
@@ -446,6 +446,7 @@ body {
 
 .char-card{
   display: flex;
+  gap: 12px;
   flex-direction: column;
   align-items: center; /* Центрируем по горизонтали */
   padding: 10px;
