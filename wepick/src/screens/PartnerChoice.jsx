@@ -64,8 +64,8 @@ export default function PartnerChoice({
             // onClick = { () => onChoose("friend")}
             className={
               value === o.key
-                ? `btn btn-active-type btn-active-${o.key}`
-                : "btn"
+                ? `btn partner-choise btn-active-type btn-active-${o.key}`
+                : "btn partner-choise"
             }
           >
             {o.label[lang]}
