@@ -129,7 +129,7 @@ export default function App() {
       "animation",
       "crime",
       "comedy",
-      "romance",
+      "romance", 
       "drama",
       "family",
       "fantasy",
