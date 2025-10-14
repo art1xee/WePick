@@ -613,6 +613,7 @@ body {
 .summary-screen .participant-name {
   margin: 0;
   font-size: 16px;
+  margin-bottom: px;
   color: var(--accent);
   text-shadow: 1px 1px 0 #fff;
 }

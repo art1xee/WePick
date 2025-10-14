@@ -173,7 +173,7 @@ export default function Summary({
             <div key={i} className={`summary-block ${i === 0 ? 'left-card' : 'right-card'}`}>
               <div className="participant-header">
                 <h4 className="participant-name">
-                  {i === 0 ? labels[lang].your_name + p.name : p.isCharacter ?labels[lang].friend_name + p.name + " " + labels[lang].character : labels[lang].friend_name + p.name}
+                  {i === 0 ? labels[lang].your_name + p.name : p.isCharacter ? labels[lang].character_name + p.name : labels[lang].friend_name + p.name}
                 </h4>
               </div>
               
