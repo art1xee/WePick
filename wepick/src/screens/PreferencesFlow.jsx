@@ -189,7 +189,7 @@ export default function PreferencesFlow({ lang = "ua", participant, onSave, onNe
             value={decade} 
             onChange={e=>setDecade(Number(e.target.value))}>
               {decades.map(d=>(
-                <option key={d} value={d}>{d}s</option>
+                <option key={d} value={d}>{d}</option>
               ))}
             </select>
           </div>
