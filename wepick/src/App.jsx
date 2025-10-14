@@ -14,22 +14,20 @@ const moviesData = [];
 const contentTypeOptions = [
   {
     key: "movie",
-    content: { ua: "фільму", ru: "фильма", en: "movie" },
+    content: { ua: "Фільми", ru: "Фильмы", en: "Movie" },
     label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" },
   },
   {
     key: "series",
-    content: { ua: "серіалу", ru: "сериала", en: "series" },
+    content: { ua: "Серіали", ru: "Сериалы", en: "Series" },
     label: { ua: "Серіали", ru: "Сериалы", en: "Series" },
   },
   {
     key: "anime",
-    content: { ua: "аніме", ru: "аниме", en: "anime" },
+    content: { ua: "Аніме", ru: "Аниме", en: "Anime" },
     label: { ua: "Аніме", ru: "Аниме", en: "Anime's" },
   },
 ];
-
-
 
 const initialState = () => ({
   lang: "ua",
@@ -37,7 +35,6 @@ const initialState = () => ({
   contentType: null, // 'movie' | 'series' | 'anime'
   partnerType: null, // 'friend' | 'popular-character'
   participants: [
-    // В content теперь будет объект с переводами, а не строка
     {
       name: null,
       dislikes: [],
@@ -55,11 +52,9 @@ const initialState = () => ({
 export default function App() {
   const [state, setState] = useState(initialState());
 
-  const setLang = (lang) => setState((s) => ({ ...s, lang }));
-
   const resetAll = () => setState(initialState());
 
-  const update = (patch) => setState((s) => ({ ...s, ...patch })); // helpers to update participant
+  const update = (patch) => setState((s) => ({ ...s, ...patch }));
 
   const updateParticipant = (idx, patch) => {
     setState((s) => {
@@ -67,7 +62,7 @@ export default function App() {
       participants[idx] = { ...participants[idx], ...patch };
       return { ...s, participants };
     });
-  }; // navigation helpers
+  };
 
   const nextStep = () => setState((s) => ({ ...s, step: s.step + 1 }));
   const goToStep = (step) => setState((s) => ({ ...s, step }));
@@ -97,7 +92,7 @@ export default function App() {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [state.step]); // compute if second participant exists (friend flow will add one)
+  }, [state.step]);
 
   const ensureSecondParticipant = () => {
     setState((s) => {
@@ -119,76 +114,178 @@ export default function App() {
       }
       return s;
     });
-  }; // create character participant with random prefs
+  };
 
   const createCharacterParticipant = (char) => {
-    // generate random choices (simple)
-    const genres = [
-      "action",
-      "adventure",
-      "animation",
-      "crime",
-      "comedy",
-      "romance",
-      "drama",
-      "family",
-      "fantasy",
-      "horror",
-      "musical",
-      "documentary",
-      "sci-fi",
-      "thriller",
-      "war",
-      "western",
-      "feel good",
-      "indie",
-      "monster",
-      "detective",
-      "classic",
-      "superhero",
-      "cult",
-      "tearjerker",
-      "sports",
-      "date night",
-      "gangster",
-      "futuristic",
-      "explosive",
-      "gritty",
-      "true story",
-    ];
+    // Используем те же жанры, что и в Summary.jsx
+    const GENRES = {
+      ua: [
+        "Бойовик", "Пригоди", "Комедія", "Драма",
+        "Романтика", "Фентезі", "Наукова фантастика", "Містика / Детектив",
+        "Жахи", "Трилер", "Повсякденність", "Спорт",
+        "Надприродне", "Історичний", "Військовий", "Кримінал",
+        "Сімейний", "Мюзикл", "Документальний", "Вестерн"
+      ],
+      ru: [
+        "Боевик", "Приключения", "Комедия", "Драма",
+        "Романтика", "Фэнтези", "Научная фантастика", "Мистика / Детектив",
+        "Ужасы", "Триллер", "Повседневность", "Спорт",
+        "Сверхъестественное", "Исторический", "Военный", "Криминал",
+        "Семейный", "Мюзикл", "Документальный", "Вестерн"
+      ],
+      en: [
+        "Action", "Adventure", "Comedy", "Drama",
+        "Romance", "Fantasy", "Sci-Fi", "Mystery",
+        "Horror", "Thriller", "Slice of Life", "Sports",
+        "Supernatural", "Historical", "War", "Crime",
+        "Family", "Musical", "Documentary", "Western"
+      ]
+    };
+
+    const ADDITIONAL = {
+      ua: [
+        "Психологічний", "Супергерої", "Кіберпанк", "Постапокаліпсис",
+        "Меха / Роботи", "Ісекай (інший світ)", "Вампірський", "Монстри",
+        "Шкільний", "Айдоли / Шоу-бізнес", "Романтична комедія", "Зворушливий",
+        "Темне фентезі", "Детектив", "Культова класика", "Добрий / Позитивний",
+        "Мрачний / Жорсткий", "Реальна історія", "Футуристичний", "Про дорослішання"
+      ],
+      ru: [
+        "Психологический", "Супергерои", "Киберпанк", "Постапокалипсис",
+        "Меха / Роботы", "Исекай (другой мир)", "Вампирский", "Монстры",
+        "Школьный", "Айдолы / Шоу-бизнес", "Романтическая комедия", "Душераздирающий",
+        "Тёмное фэнтези", "Детектив", "Культовая классика", "Добрый / Позитивный",
+        "Мрачный / Жёсткий", "Реальная история", "Футуристический", "Про взросление"
+      ],
+      en: [
+        "Psychological", "Superhero", "Cyberpunk", "Post-Apocalyptic",
+        "Mecha / Robots", "Isekai (Another World)", "Vampire", "Monster",
+        "School", "Idol / Showbiz", "Rom-Com", "Tearjerker",
+        "Dark Fantasy", "Detective", "Cult Classic", "Feel Good",
+        "Gritty", "True Story", "Futuristic", "Coming of Age"
+      ]
+    };
+
+    // Получаем жанры для текущего языка
+    const currentLang = state.lang;
+    const allGenres = [...GENRES[currentLang], ...ADDITIONAL[currentLang]];
+
     const sample = (arr, n) => {
       const a = [...arr];
       const out = [];
-      const len = Math.min(n, a.length); // Ensure we don't try to sample more than available
+      const len = Math.min(n, a.length);
       while (out.length < len) {
         const i = Math.floor(Math.random() * a.length);
         out.push(a.splice(i, 1)[0]);
       }
       return out;
     };
-    const dislikes = sample(genres, 3);
-    const likes = sample(genres, 3);
-    const decadeOptions = [
-      1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
-    ];
-    const decade =
-      decadeOptions[Math.floor(Math.random() * decadeOptions.length)]; // push second participant with char info
+
+    const dislikes = sample(allGenres, 3);
+    const likes = sample(allGenres, 3);
+    const decadeOptions = [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
+    const decade = decadeOptions[Math.floor(Math.random() * decadeOptions.length)];
+
     setState((s) => {
-      const participants = [...s.participants]; // Check if participants[1] exists before assignment
+      const participants = [...s.participants];
       if (participants.length < 2) {
         participants.push({});
-      } // В Character flow контент участника 1 (персонажа) должен быть таким же, как у участника 0.
+      }
       participants[1] = {
         name: char.name,
         dislikes,
         likes,
         decade,
         isCharacter: true,
-        content: participants[0].content, // Копируем контент-тип от первого участника
+        content: participants[0].content,
       };
       return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
     });
-  }; // matching algorithm (simple)
+  };
+
+  // Функция для обновления жанров персонажа при смене языка
+  const updateCharacterGenres = (newLang) => {
+    setState((s) => {
+      if (s.participants.length > 1 && s.participants[1].isCharacter) {
+        const GENRES = {
+          ua: [
+            "Бойовик", "Пригоди", "Комедія", "Драма",
+            "Романтика", "Фентезі", "Наукова фантастика", "Містика / Детектив",
+            "Жахи", "Трилер", "Повсякденність", "Спорт",
+            "Надприродне", "Історичний", "Військовий", "Кримінал",
+            "Сімейний", "Мюзикл", "Документальний", "Вестерн"
+          ],
+          ru: [
+            "Боевик", "Приключения", "Комедия", "Драма",
+            "Романтика", "Фэнтези", "Научная фантастика", "Мистика / Детектив",
+            "Ужасы", "Триллер", "Повседневность", "Спорт",
+            "Сверхъестественное", "Исторический", "Военный", "Криминал",
+            "Семейный", "Мюзикл", "Документальный", "Вестерн"
+          ],
+          en: [
+            "Action", "Adventure", "Comedy", "Drama",
+            "Romance", "Fantasy", "Sci-Fi", "Mystery",
+            "Horror", "Thriller", "Slice of Life", "Sports",
+            "Supernatural", "Historical", "War", "Crime",
+            "Family", "Musical", "Documentary", "Western"
+          ]
+        };
+
+        const ADDITIONAL = {
+          ua: [
+            "Психологічний", "Супергерої", "Кіберпанк", "Постапокаліпсис",
+            "Меха / Роботи", "Ісекай (інший світ)", "Вампірський", "Монстри",
+            "Шкільний", "Айдоли / Шоу-бізнес", "Романтична комедія", "Зворушливий",
+            "Темне фентезі", "Детектив", "Культова класика", "Добрий / Позитивний",
+            "Мрачний / Жорсткий", "Реальна історія", "Футуристичний", "Про дорослішання"
+          ],
+          ru: [
+            "Психологический", "Супергерои", "Киберпанк", "Постапокалипсис",
+            "Меха / Роботы", "Исекай (другой мир)", "Вампирский", "Монстры",
+            "Школьный", "Айдолы / Шоу-бизнес", "Романтическая комедия", "Душераздирающий",
+            "Тёмное фэнтези", "Детектив", "Культовая классика", "Добрый / Позитивный",
+            "Мрачный / Жёсткий", "Реальная история", "Футуристический", "Про взросление"
+          ],
+          en: [
+            "Psychological", "Superhero", "Cyberpunk", "Post-Apocalyptic",
+            "Mecha / Robots", "Isekai (Another World)", "Vampire", "Monster",
+            "School", "Idol / Showbiz", "Rom-Com", "Tearjerker",
+            "Dark Fantasy", "Detective", "Cult Classic", "Feel Good",
+            "Gritty", "True Story", "Futuristic", "Coming of Age"
+          ]
+        };
+
+        const allGenres = [...GENRES[newLang], ...ADDITIONAL[newLang]];
+        
+        const sample = (arr, n) => {
+          const a = [...arr];
+          const out = [];
+          const len = Math.min(n, a.length);
+          while (out.length < len) {
+            const i = Math.floor(Math.random() * a.length);
+            out.push(a.splice(i, 1)[0]);
+          }
+          return out;
+        };
+
+        const participants = [...s.participants];
+        participants[1] = {
+          ...participants[1],
+          dislikes: sample(allGenres, 3),
+          likes: sample(allGenres, 3)
+        };
+
+        return { ...s, participants };
+      }
+      return s;
+    });
+  };
+
+  const setLang = (lang) => {
+    setState((s) => ({ ...s, lang }));
+    // Обновляем жанры персонажа при смене языка
+    setTimeout(() => updateCharacterGenres(lang), 0);
+  };
 
   const findMatches = () => {
     const participants = state.participants;
@@ -209,7 +306,7 @@ export default function App() {
     };
     const scored = filtered
       .map((m) => ({ movie: m, score: scoreMovie(m) }))
-      .filter((x) => x.score > -5) // prune awful ones
+      .filter((x) => x.score > -5)
       .sort((a, b) => b.score - a.score);
     return scored.map((x) => x.movie);
   };
@@ -217,15 +314,13 @@ export default function App() {
   const onFind = () => {
     const matches = findMatches();
     setState((s) => ({ ...s, results: matches, step: 8 }));
-  }; // render the correct screen based on step
+  };
 
   return (
     <div className="app">
-            <Header lang={state.lang} setLang={setLang} resetAll={resetAll} /> 
-         {" "}
+      <Header lang={state.lang} setLang={setLang} resetAll={resetAll} />
       <div className="container">
-               {" "}
-        {state.step === 1 && ( // Использование LandingScreen (импортированного как Loading)
+        {state.step === 1 && (
           <LandingScreen
             lang={state.lang}
             onNext={(name) => {
@@ -234,25 +329,25 @@ export default function App() {
             }}
           />
         )}
-               {" "}
+
         {state.step === 2 && (
           <ContentType
-            lang={state.lang} // === ПЕРЕДАЧА ИМЕНИ: Передаем имя пользователя ===
-            userName={state.participants[0].name} // ==================================================
+            lang={state.lang}
+            userName={state.participants[0].name}
             value={state.contentType}
             onSelect={(selectedOption) => {
-              update({ contentType: selectedOption.key }); // БАГ 1: Сохраняем весь объект контента
-              updateParticipant(0, { content: selectedOption.content });
+              update({ contentType: selectedOption.key });
+              updateParticipant(0, { content: selectedOption.label });
             }}
             onNext={() => nextStep()}
           />
         )}
-                         {" "}
+
         {state.step === 3 && (
           <PartnerChoice
-            lang={state.lang} // Передаем объект контента для динамического перевода
+            lang={state.lang}
             contentType={state.participants[0].content}
-            value={state.partnerType} // onSelect: просто сохраняем ключ партнера
+            value={state.partnerType}
             onSelect={(selectedOption) =>
               update({ partnerType: selectedOption.key })
             }
@@ -264,15 +359,13 @@ export default function App() {
             }}
           />
         )}
-               {" "}
+
         {state.step === 4 && (
           <CharacterGridOrFriend
-          lang={state.lang}  
-          partnerType={state.partnerType}
+            lang={state.lang}
+            partnerType={state.partnerType}
             onCharacter={(char) => createCharacterParticipant(char)}
             onFriendName={(name) => {
-              // set participant 2 name and continue to prefs for participant1
-              // Обновляем имя второго участника
               updateParticipant(1, {
                 name,
                 content: state.participants[0].content,
@@ -281,22 +374,22 @@ export default function App() {
             }}
           />
         )}
-                {/* Preferences for participant 1 */}       {" "}
+
         {state.step === 5 && (
           <PreferencesFlow
             lang={state.lang}
             participant={state.participants[0]}
             onSave={(data) => {
-              updateParticipant(0, data); // if partner is friend -> next we need to collect prefs for participant 2
+              updateParticipant(0, data);
               if (state.partnerType === "friend") {
-                nextStep(); // go to step 6 (prefs for participant 2)
+                nextStep();
               } else {
-                nextStep(); // partner is char -> skip to summary or next step
+                nextStep();
               }
             }}
           />
         )}
-                {/* If friend: preferences for participant 2 */}       {" "}
+
         {state.step === 6 && state.partnerType === "friend" && (
           <PreferencesFlow
             lang={state.lang}
@@ -307,16 +400,8 @@ export default function App() {
             }}
           />
         )}
-               {" "}
-        {/* If character path: after step 5 we are here (step 6) — but we already set character's prefs earlier — Next */}
-               {" "}
-        {state.step === 6 && state.partnerType === "popular-character" && (
-          <div style={{ padding: 20 }}>
-                        <button onClick={() => nextStep()}>Далі</button>       
-             {" "}
-          </div>
-        )}
-                {/* Summary */}       {" "}
+
+
         {(state.step === 7 ||
           (state.step === 6 && state.partnerType === "popular-character")) && (
           <Summary
@@ -326,13 +411,11 @@ export default function App() {
             lang={state.lang}
           />
         )}
-                {/* Results */}       {" "}
+
         {state.step === 8 && (
           <Results movies={state.results} onRestart={resetAll} />
         )}
-                     {" "}
       </div>
-         {" "}
     </div>
   );
 }
