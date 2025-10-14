@@ -375,31 +375,29 @@ export default function App() {
           />
         )}
 
-        {state.step === 5 && (
-          <PreferencesFlow
-            lang={state.lang}
-            participant={state.participants[0]}
-            onSave={(data) => {
-              updateParticipant(0, data);
-              if (state.partnerType === "friend") {
-                nextStep();
-              } else {
-                nextStep();
-              }
-            }}
-          />
-        )}
+       {state.step === 5 && (
+  <PreferencesFlow
+    lang={state.lang}
+    participant={state.participants[0]}
+    userName={state.participants[0].name}
+    onSave={(data) => {
+      updateParticipant(0, data);
+      nextStep();
+    }}
+  />
+)}
 
-        {state.step === 6 && state.partnerType === "friend" && (
-          <PreferencesFlow
-            lang={state.lang}
-            participant={state.participants[1]}
-            onSave={(data) => {
-              updateParticipant(1, data);
-              nextStep();
-            }}
-          />
-        )}
+{state.step === 6 && state.partnerType === "friend" && (
+  <PreferencesFlow
+    lang={state.lang}
+    participant={state.participants[1]}
+    userName={state.participants[1].name}
+    onSave={(data) => {
+      updateParticipant(1, data);
+      nextStep();
+    }}
+  />
+)}
 
 
         {(state.step === 7 ||
