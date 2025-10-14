@@ -9,8 +9,8 @@ const labels = {
     decade: "Декада:",
     next: "Знайти {content}!",
     error: "Невідомий Контент!",
-    friend_name:"Ім'я друга:",
-    character_name:"Ім'я персонажа:",
+    friend_name:"Ім'я друга: ",
+    character_name:"Ім'я персонажа: ",
     character:"(персонаж)",
   },
   ru: {
@@ -21,8 +21,8 @@ const labels = {
     decade: "Декада:",
     next: "Найти {content}!",
     error: "Неизвестный контент!",
-    friend_name:"Имя друга:",
-    character_name:"Имя персонажа:",
+    friend_name:"Имя друга: ",
+    character_name:"Имя персонажа: ",
     character:"(персонаж)",
   },
   en: {
@@ -33,8 +33,8 @@ const labels = {
     decade: "Decade:",
     next: "Find a {content}!",
     error: "Unknown Content!",
-    friend_name:"Friend's name:",
-    character_name:"Character's name:",
+    friend_name:"Friend's name: ",
+    character_name:"Character's name: ",
     character:"(character)",
   },
 };
@@ -61,42 +61,57 @@ export default function Summary({
   };
 
 
+
   return (
     <div className="summary-screen">
-      <h2>{labels[lang].title}</h2>
-      <p>
-        {labels[lang].content_type}
-        <strong>{contentType}</strong>
-      </p>
-      {participants.map((p, i) => (
-        <div key={i} className="summary-block">
-          <h4>
-            {i === 0 ? "Ви" : p.isCharacter ? p.name + " " + labels[lang].character : p.name}
-          </h4>
-          <p>
-           <div className="dislike_content_summary">
-             <strong>{labels[lang].dont_want_watch}</strong>{" "}
-            {p.dislikes && p.dislikes.join(", ")}
-           </div>
-          </p>
-          <p>
-            <div className="like_content_summary">
-            <strong>{labels[lang].want_watch}</strong>{" "}
-            {p.likes && p.likes.join(", ")}  
-            </div>
-          </p>
-          <p>
-            <div className="decade-summary">
-              <strong>{labels[lang].decade}</strong> {p.decade}
-            </div>
+      <div className="summary-content">
+        <h2 className="summary-title">{labels[lang].title}</h2>
+        
+        <div className="content-type-section">
+          <p className="content-type-info">
+            {labels[lang].content_type}
+            <strong className="content-type-value">{contentType && contentType[lang] ? contentType[lang] : contentType}</strong>
           </p>
         </div>
-      ))}
-      <div style={{ marginTop: 20 }}>
-        <button className="btn btn-active" onClick={onFind}>
-          {labels[lang].next}
-          {getContentType}
-        </button>
+
+        <div className="participants-section">
+          {participants.map((p, i) => (
+            <div key={i} className="summary-block">
+              <div className="participant-header">
+                <h4 className="participant-name">
+                  {i === 0 ? "Ви" : p.isCharacter ? labels[lang].friend_name + p.name + " " : p.name + labels[lang].character}
+                </h4>
+              </div>
+              
+              <div className="participant-preferences">
+                <div className="preference-item dislike-content">
+                  <span className="preference-label">{labels[lang].dont_want_watch}</span>
+                  <span className="preference-value">
+                    {p.dislikes && p.dislikes.length > 0 ? p.dislikes.join(", ") : "Немає"}
+                  </span>
+                </div>
+                
+                <div className="preference-item like-content">
+                  <span className="preference-label">{labels[lang].want_watch}</span>
+                  <span className="preference-value">
+                    {p.likes && p.likes.length > 0 ? p.likes.join(", ") : "Немає"}
+                  </span>
+                </div>
+                
+                <div className="preference-item decade-content">
+                  <span className="preference-label">{labels[lang].decade}</span>
+                  <span className="preference-value">{p.decade || "Не вибрано"}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="action-section">
+          <button className="btn btn-active summary-action-btn" onClick={onFind}>
+            {getContentType()}
+          </button>
+        </div>
       </div>
     </div>
   );
