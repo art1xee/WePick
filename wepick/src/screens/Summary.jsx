@@ -9,6 +9,9 @@ const labels = {
     decade: "Декада:",
     next: "Знайти {content}!",
     error: "Невідомий Контент!",
+    friend_name:"Ім'я друга:",
+    character_name:"Ім'я персонажа:",
+    character:"(персонаж)",
   },
   ru: {
     title: "Итоги выбора:",
@@ -17,16 +20,22 @@ const labels = {
     want_watch: "Хотим смотреть:",
     decade: "Декада:",
     next: "Найти {content}!",
-    error: "Неизветсный контент!",
+    error: "Неизвестный контент!",
+    friend_name:"Имя друга:",
+    character_name:"Имя персонажа:",
+    character:"(персонаж)",
   },
   en: {
     title: "Selection Summary:",
     content_type: "Content Type: ",
-    dont_want_watch: "Don`t want to watch:",
+    dont_want_watch: "Don't want to watch:",
     want_watch: "Want to watch:",
     decade: "Decade:",
     next: "Find a {content}!",
     error: "Unknown Content!",
+    friend_name:"Friend's name:",
+    character_name:"Character's name:",
+    character:"(character)",
   },
 };
 
@@ -62,18 +71,24 @@ export default function Summary({
       {participants.map((p, i) => (
         <div key={i} className="summary-block">
           <h4>
-            {i === 0 ? "Ви" : p.isCharacter ? p.name + " (персонаж)" : p.name}
+            {i === 0 ? "Ви" : p.isCharacter ? p.name + " " + labels[lang].character : p.name}
           </h4>
           <p>
-            <strong>{labels[lang].dont_want_watch}</strong>{" "}
+           <div className="dislike_content_summary">
+             <strong>{labels[lang].dont_want_watch}</strong>{" "}
             {p.dislikes && p.dislikes.join(", ")}
+           </div>
           </p>
           <p>
+            <div className="like_content_summary">
             <strong>{labels[lang].want_watch}</strong>{" "}
-            {p.likes && p.likes.join(", ")}
+            {p.likes && p.likes.join(", ")}  
+            </div>
           </p>
           <p>
-            <strong>{labels[lang].decade}</strong> {p.decade}s
+            <div className="decade-summary">
+              <strong>{labels[lang].decade}</strong> {p.decade}
+            </div>
           </p>
         </div>
       ))}
@@ -86,3 +101,7 @@ export default function Summary({
     </div>
   );
 }
+//TODO make a content type change language
+//TODO add in next buttonb content type
+//TODO make text more beautiful
+//TODO show a 1 user name and second user 
