@@ -9,24 +9,24 @@ import React, { useState } from "react";
 
 const labels = {
   ua:{
-    title_dislikes:"Оберіть 3 жанри, які ви НЕ хочете - дивитись.",
-    title_like: "Оберіть 3 жанри, які ви ХОЧЕТЕ - дивитись.",
+    title_dislikes:"{name} Обери 3 жанри, які ти НЕ хочеш - дивитись.",
+    title_like: "{name} Обери 3 жанри, які ти ХОЧЕШ - дивитись.",
     next: "Далі!",
-    decade: "Оберіть декаду:",
+    decade: "{name} Оберіть декаду:",
     save: "Зберегти!",
   },
   ru:{
-    title_dislikes:"Выберите 3 жанра, который вы НЕ хотите - смотреть.", 
-    title_like: "Выберите 3 жанра, который вы ХОТИТЕ - смотреть.",     
+    title_dislikes:"{name} Выберите 3 жанра, которые ты НЕ хочешь - смотреть.", 
+    title_like: "{name} Выберите 3 жанра, который ты ХОЧЕШЬ - смотреть.",     
     next: "Далее!",
-    decade: "Выберите декаду:",
+    decade: "{name} Выберите декаду:",
     save: "Сохранить!",
   },
   en:{
-    title_dislikes:"Select 3 genres that you do NOT want to watch..",
-    title_like: "Select 3 genres that you WANT to watch.",
+    title_dislikes:"{name} Select 3 genres that you do NOT want to watch..",
+    title_like: "{name} Select 3 genres that you WANT to watch.",
     next: "Next!",
-    decade: "Select a decade:",
+    decade: "{name} Select a decade:",
     save: "Save!",
   }
 }
@@ -104,7 +104,7 @@ const UNIFIED_GENRE_CARD_STYLE = {
 };
 
 
-export default function PreferencesFlow({ lang = "ua", participant, onSave, onNext, onChoose }) {
+export default function PreferencesFlow({ lang = "ua", participant, onSave, onNext, onChoose, userName }) {
   const { dislikeOptions, likeOptions } = getCombinedGenres(lang);
   
   const [step, setStep] = useState("dislikes"); // 'dislikes'|'likes'
@@ -121,13 +121,25 @@ export default function PreferencesFlow({ lang = "ua", participant, onSave, onNe
     }
   };
 
+  const getLabel = (key) => {
+  const labelSet = labels[lang];
+  const template = labelSet[key];
+
+  if (!template) {
+    console.warn(`⚠️ Label key "${key}" не найден для языка "${lang}"`);
+    return "";
+  }
+
+  return template.replace("{name}", userName || "(невідоме ім'я)");
+};
+
   const decades = [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
 
   return (
     <div className="genres-screen">
       {step === "dislikes" && (
         <>
-          <h3>{labels[lang].title_dislikes}</h3>
+          <h3>{getLabel("title_dislikes")}</h3>
           <div className="grid-4">
             {dislikeOptions.map(g => (
               <div 
@@ -154,7 +166,7 @@ export default function PreferencesFlow({ lang = "ua", participant, onSave, onNe
 
       {step === "likes" && (
         <>
-          <h3>{labels[lang].title_like}</h3>
+          <h3>{getLabel("title_like")}</h3>
           <div className="grid-4">
             {likeOptions.map(g => (
               <div 
@@ -171,7 +183,7 @@ export default function PreferencesFlow({ lang = "ua", participant, onSave, onNe
           </div>
 
           <div className="decade-chooser-container" style={{ marginTop: 40}}>
-            <label className="decade-spinner-label">{labels[lang].decade}</label>
+            <label className="decade-spinner-label">{getLabel("decade")}</label>
             <select 
             className="decade-spinner"
             value={decade} 
