@@ -14,17 +14,17 @@ const moviesData = [];
 const contentTypeOptions = [
   {
     key: "movie",
-    content: { ua: "фільму", ru: "фильма", en: "movie" },
+    content: { ua: "Фільми", ru: "Фильмы", en: "Movie" },
     label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" },
   },
   {
     key: "series",
-    content: { ua: "серіалу", ru: "сериала", en: "series" },
+    content: { ua: "Серіали", ru: "Сериалы", en: "Series" },
     label: { ua: "Серіали", ru: "Сериалы", en: "Series" },
   },
   {
     key: "anime",
-    content: { ua: "аніме", ru: "аниме", en: "anime" },
+    content: { ua: "Аніме", ru: "Аниме", en: "Anime" },
     label: { ua: "Аніме", ru: "Аниме", en: "Anime's" },
   },
 ];
@@ -242,7 +242,7 @@ export default function App() {
             value={state.contentType}
             onSelect={(selectedOption) => {
               update({ contentType: selectedOption.key }); // БАГ 1: Сохраняем весь объект контента
-              updateParticipant(0, { content: selectedOption.content });
+              updateParticipant(0, { content: selectedOption.label });
             }}
             onNext={() => nextStep()}
           />
