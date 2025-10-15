@@ -12,14 +12,14 @@ const labels = {
     title_dislikes:"{name} Обери 3 жанри, які ти НЕ хочеш - дивитись.",
     title_like: "{name} Обери 3 жанри, які ти ХОЧЕШ - дивитись.",
     next: "Далі!",
-    decade: "{name} Оберіть декаду:",
+    decade: "{name} Обери декаду:",
     save: "Зберегти!",
   },
   ru:{
     title_dislikes:"{name} Выберите 3 жанра, которые ты НЕ хочешь - смотреть.", 
     title_like: "{name} Выберите 3 жанра, который ты ХОЧЕШЬ - смотреть.",     
     next: "Далее!",
-    decade: "{name} Выберите декаду:",
+    decade: "{name} Выбери декаду:",
     save: "Сохранить!",
   },
   en:{
@@ -189,7 +189,7 @@ export default function PreferencesFlow({ lang = "ua", participant, onSave, onNe
             value={decade} 
             onChange={e=>setDecade(Number(e.target.value))}>
               {decades.map(d=>(
-                <option key={d} value={d}>{d}s</option>
+                <option key={d} value={d}>{d}</option>
               ))}
             </select>
           </div>

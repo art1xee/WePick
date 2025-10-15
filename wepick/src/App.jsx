@@ -411,7 +411,10 @@ export default function App() {
         )}
 
         {state.step === 8 && (
-          <Results movies={state.results} onRestart={resetAll} />
+          <Results movies={state.results} 
+          onRestart={resetAll} 
+          lang={state.lang}
+          />
         )}
       </div>
     </div>

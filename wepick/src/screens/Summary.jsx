@@ -4,8 +4,8 @@ const labels = {
   ua: {
     title: "Підсумок вибору:",
     content_type: "Тип контенту: ",
-    dont_want_watch: "Не хочемо дивитись:",
-    want_watch: "Хочемо дивитись:",
+    dont_want_watch: "Не хоче дивитися:",
+    want_watch: "Хоче дивитися:",
     decade: "Декада:",
     next: "Знайти {content}!",
     error: "Невідомий Контент!",
@@ -18,8 +18,8 @@ const labels = {
   ru: {
     title: "Итоги выбора:",
     content_type: "Тип контента: ",
-    dont_want_watch: "Не хотим смотреть:",
-    want_watch: "Хотим смотреть:",
+    dont_want_watch: "Не хочет смотреть:",
+    want_watch: "Хочет смотреть:",
     decade: "Декада:",
     next: "Найти {content}!",
     error: "Неизвестный контент!",
