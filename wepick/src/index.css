@@ -919,6 +919,11 @@ body {
   border-radius: 8px;
   color: var(--accent);
 }
+.result-name{
+   text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+}
 
   .btn-more{
   font-family: "Press Start 2P", cursive;

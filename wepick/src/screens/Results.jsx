@@ -4,21 +4,21 @@ import { getByGenres } from "../api/tmdb";
 const labels = {
   ua:{
     title: "Зустріньте свою кінопару!",
-    info_button: "Більше детальній",
+    info_button: "Більше деталій..",
     more_button: "Бачили - показати інше",
     loading: "Завантаження...",
     name: "Назва: "
   },
   ru:{
     title: "Встретьте свою кино-пару!",
-    info_button: "Больше деталей",
+    info_button: "Больше деталей..",
     more_button: "Видели - показать другое",
     loading: "Загрузка...",
     name: "Название: "
   },
   en:{
     title: "Meet your movie match!",
-    info_button: "More details",
+    info_button: "More details..",
     more_button: "Seen it - show another",
     loading: "Loading...",
     name: "Name: "
@@ -57,7 +57,7 @@ export default function Results({ movies,
   return (
     <div className="result-screen">
       <h2 className="result-title">{labels[lang].title}</h2>
-      <h3>{labels[lang].name + current.title} ({current.release_date?.slice(0,4)})</h3>
+      <h3 className="result-name">{labels[lang].name + current.title} ({current.release_date?.slice(0,4)})</h3>
       <img
         src={`https://image.tmdb.org/t/p/w500${current.poster_path}`}
         alt={current.title}
