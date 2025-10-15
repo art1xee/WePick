@@ -1,7 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { getByGenres } from "../api/tmdb";
 
-export default function Results({ movies, onRestart }) {
+const labels = {
+  ua:{
+    title: "Зустріньте свою кінопару!",
+    info_button: "Більше детальній",
+    more_button: "Бачили - показати інше",
+    loading: "Завантаження...",
+  },
+  ru:{
+    title: "Встретьте свою кино-пару!",
+    info_button: "Больше деталей",
+    more_button: "Видели - показать другое",
+    loading: "Загрузка...",
+  },
+  en:{
+    title: "Meet your movie match!",
+    info_button: "More details",
+    more_button: "Seen it - show another",
+    loading: "Loading...",
+  }
+
+
+}
+
+
+
+export default function Results({ movies, 
+  onRestart, 
+  lang = "ua", 
+
+}) {
   const [tmdbResults, setTmdbResults] = useState([]);
   const [idx, setIdx] = useState(0);
 
@@ -19,14 +48,14 @@ export default function Results({ movies, onRestart }) {
   }, []);
 
   if (!tmdbResults.length)
-    return <div className="screen"><p>Завантаження...</p></div>;
+    return <div className="screen"><p>{labels[lang].loading}</p></div>;
 
   const current = tmdbResults[idx];
   const next = () => setIdx((i) => (i + 1) % tmdbResults.length);
 
   return (
-    <div className="screen">
-      <h2>Зустріньте свою кінопару!</h2>
+    <div className="result-screen">
+      <h2>{labels[lang].title}</h2>
       <h3>{current.title} ({current.release_date?.slice(0,4)})</h3>
       <img
         src={`https://image.tmdb.org/t/p/w500${current.poster_path}`}
@@ -41,10 +70,10 @@ export default function Results({ movies, onRestart }) {
           rel="noreferrer"
           className="btn"
         >
-          Більше детальній
+          {labels[lang].info_button}
         </a>
         <button onClick={next} className="btn" style={{ marginLeft: 8 }}>
-          Виділили — показати інше
+          {labels[lang].more_button}
         </button>
       </div>
     </div>
