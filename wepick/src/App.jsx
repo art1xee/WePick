@@ -7,33 +7,13 @@ import PreferencesFlow from "./screens/PreferencesFlow.jsx";
 import Summary from "./screens/Summary.jsx";
 import Results from "./screens/Results.jsx";
 import Header from "./components/Header.jsx";
-// =================================================================
-
-const moviesData = [];
-
-const contentTypeOptions = [
-  {
-    key: "movie",
-    content: { ua: "Фільми", ru: "Фильмы", en: "Movie" },
-    label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" },
-  },
-  {
-    key: "series",
-    content: { ua: "Серіали", ru: "Сериалы", en: "Series" },
-    label: { ua: "Серіали", ru: "Сериалы", en: "Series" },
-  },
-  {
-    key: "anime",
-    content: { ua: "Аніме", ru: "Аниме", en: "Anime" },
-    label: { ua: "Аніме", ru: "Аниме", en: "Anime's" },
-  },
-];
+import { fetchContentForParticipants } from "./services/tmdbService.js";
 
 const initialState = () => ({
   lang: "ua",
   step: 1,
-  contentType: null, // 'movie' | 'series' | 'anime'
-  partnerType: null, // 'friend' | 'popular-character'
+  contentType: null,
+  partnerType: null,
   participants: [
     {
       name: null,
@@ -46,7 +26,10 @@ const initialState = () => ({
   ],
   chosenCharacter: null,
   results: [],
-  movies: moviesData,
+  loading: false, // Добавляем состояние загрузки
+  didWeakenFilters: false, // <-- ДОБАВИТЬ ЭТО
+  characterName: null,     // <-- ДОБАВИТЬ ЭТО
+
 });
 
 export default function App() {
@@ -117,7 +100,6 @@ export default function App() {
   };
 
   const createCharacterParticipant = (char) => {
-    // Используем те же жанры, что и в Summary.jsx
     const GENRES = {
       ua: [
         "Бойовик", "Пригоди", "Комедія", "Драма",
@@ -166,7 +148,6 @@ export default function App() {
       ]
     };
 
-    // Получаем жанры для текущего языка
     const currentLang = state.lang;
     const allGenres = [...GENRES[currentLang], ...ADDITIONAL[currentLang]];
 
@@ -203,7 +184,6 @@ export default function App() {
     });
   };
 
-  // Функция для обновления жанров персонажа при смене языка
   const updateCharacterGenres = (newLang) => {
     setState((s) => {
       if (s.participants.length > 1 && s.participants[1].isCharacter) {
@@ -211,7 +191,7 @@ export default function App() {
           ua: [
             "Бойовик", "Пригоди", "Комедія", "Драма",
             "Романтика", "Фентезі", "Наукова фантастика", "Містика / Детектив",
-            "Жахи", "Трилер", "Повсякденність", "Спорт",
+            "Жахи", "Трилер", "Повсякденість", "Спорт",
             "Надприродне", "Історичний", "Військовий", "Кримінал",
             "Сімейний", "Мюзикл", "Документальний", "Вестерн"
           ],
@@ -283,38 +263,38 @@ export default function App() {
 
   const setLang = (lang) => {
     setState((s) => ({ ...s, lang }));
-    // Обновляем жанры персонажа при смене языка
     setTimeout(() => updateCharacterGenres(lang), 0);
   };
 
-  const findMatches = () => {
-    const participants = state.participants;
-    const filtered = state.movies.filter((m) => m.type === state.contentType);
-    const scoreMovie = (movie) => {
-      let score = 0;
-      for (const p of participants) {
-        for (const like of p.likes || []) {
-          if (movie.genres.includes(like)) score += 1;
-        }
-        for (const dislike of p.dislikes || []) {
-          if (movie.genres.includes(dislike)) score -= 2;
-        }
-        const movieDecade = Math.floor(movie.year / 10) * 10;
-        if (p.decade && movieDecade === p.decade) score += 1;
-      }
-      return score;
-    };
-    const scored = filtered
-      .map((m) => ({ movie: m, score: scoreMovie(m) }))
-      .filter((x) => x.score > -5)
-      .sort((a, b) => b.score - a.score);
-    return scored.map((x) => x.movie);
-  };
+  // НОВАЯ ФУНКЦИЯ: Загрузка контента через API
+  const onFind = async () => {
+    setState((s) => ({ ...s, loading: true }));
 
-  const onFind = () => {
-    const matches = findMatches();
-    setState((s) => ({ ...s, results: matches, step: 8 }));
-  };
+    try {
+        // Преобразуем язык в формат TMDb
+        const tmdbLanguage = state.lang === 'ua' ? 'uk-UA' :
+            state.lang === 'ru' ? 'ru-RU' : 'en-US';
+
+        // ОБНОВЛЕНО: Деструктурируем объект, возвращаемый из сервиса
+        const { results, didWeakenFilters, characterName } = await fetchContentForParticipants(
+            state.participants,
+            state.contentType,
+            tmdbLanguage
+        );
+
+        setState((s) => ({
+            ...s,
+            results,
+            loading: false,
+            step: 8,
+            didWeakenFilters, // <-- ОБНОВЛЕНИЕ СОСТОЯНИЯ
+            characterName     // <-- ОБНОВЛЕНИЕ СОСТОЯНИЯ
+        }));
+    } catch (error) {
+        console.error('Ошибка при загрузке контента:', error);
+        setState((s) => ({ ...s, loading: false }));
+    }
+};
 
   return (
     <div className="app">
@@ -375,30 +355,29 @@ export default function App() {
           />
         )}
 
-       {state.step === 5 && (
-  <PreferencesFlow
-    lang={state.lang}
-    participant={state.participants[0]}
-    userName={state.participants[0].name}
-    onSave={(data) => {
-      updateParticipant(0, data);
-      nextStep();
-    }}
-  />
-)}
+        {state.step === 5 && (
+          <PreferencesFlow
+            lang={state.lang}
+            participant={state.participants[0]}
+            userName={state.participants[0].name}
+            onSave={(data) => {
+              updateParticipant(0, data);
+              nextStep();
+            }}
+          />
+        )}
 
-{state.step === 6 && state.partnerType === "friend" && (
-  <PreferencesFlow
-    lang={state.lang}
-    participant={state.participants[1]}
-    userName={state.participants[1].name}
-    onSave={(data) => {
-      updateParticipant(1, data);
-      nextStep();
-    }}
-  />
-)}
-
+        {state.step === 6 && state.partnerType === "friend" && (
+          <PreferencesFlow
+            lang={state.lang}
+            participant={state.participants[1]}
+            userName={state.participants[1].name}
+            onSave={(data) => {
+              updateParticipant(1, data);
+              nextStep();
+            }}
+          />
+        )}
 
         {(state.step === 7 ||
           (state.step === 6 && state.partnerType === "popular-character")) && (
@@ -407,15 +386,20 @@ export default function App() {
             contentType={state.contentType}
             onFind={onFind}
             lang={state.lang}
+            loading={state.loading}
           />
         )}
 
-        {state.step === 8 && (
-          <Results movies={state.results} 
-          onRestart={resetAll} 
-          lang={state.lang}
-          />
-        )}
+       {state.step === 8 && (
+    <Results
+        movies={state.results}
+        onRestart={resetAll}
+        lang={state.lang}
+        loading={state.loading}
+        didWeakenFilters={state.didWeakenFilters} // <-- ДОБАВИТЬ ЭТО
+        characterName={state.characterName}      // <-- ДОБАВИТЬ ЭТО
+    />
+)}
       </div>
     </div>
   );
