@@ -21,7 +21,7 @@ export default function ContentType({ lang = "ua", userName, value, onSelect, on
   const options = [
     { key: "movie", content: {ua: "Фільмів", ru: "Фильмов", en:"Movie"},  label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" } },
     { key: "series",content: {ua: "Серіалів", ru: "Сериалов", en:"Series"}, label: { ua: "Серіали", ru: "Сериалы", en: "Series" } },
-    { key: "anime",content: {ua: "Аніме", ru: "Аниме", en:"Anime"}, label: { ua: "Аніме", ru: "Аниме", en: "Anime's" } },
+    { key: "anime",content: {ua: "Аніме/Азіатське", ru: "Аниме/Азиатское", en:"Anime/Asian"}, label: { ua: "Аніме/Азіатське", ru: "Аниме/Азиатское", en: "Anime/Asian" } },
   ];
 
   // Logic to replace {name} placeholder with actual userName
