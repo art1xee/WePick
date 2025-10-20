@@ -396,8 +396,10 @@ export default function App() {
         onRestart={resetAll}
         lang={state.lang}
         loading={state.loading}
-        didWeakenFilters={state.didWeakenFilters} // <-- ДОБАВИТЬ ЭТО
-        characterName={state.characterName}      // <-- ДОБАВИТЬ ЭТО
+        didWeakenFilters={state.didWeakenFilters} 
+        characterName={state.characterName}      
+        participants={state.participants}
+        contentType={state.contentType}
     />
 )}
       </div>

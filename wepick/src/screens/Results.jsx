@@ -1,221 +1,199 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getByGenres } from "../api/tmdb";
 
 const labels = {
-    ua: {
-        title: "Зустріньте свою кінопару!",
-        info_button: "Більше деталей..",
-        more_button: "Бачили - показати інше",
-        restart_button: "Почати спочатку",
-        loading: "Завантаження...",
-        name: "Назва: ",
-        year: "Рік: ",
-        rating: "Рейтинг: ",
-        overview: "Опис:",
-        no_results: "Немає результатів 😢",
-        no_results_desc: "Спробуйте змінити свої вподобання",
-        // НОВОЕ СООБЩЕНИЕ
-        weakened_filters_warning: "⚠️ Ми розширили пошук. Фільтри жанрів для {characterName} були проігноровані, щоб знайти хоч якийсь контент.",
-    },
-    ru: {
-        title: "Встретьте свою кино-пару!",
-        info_button: "Больше деталей..",
-        more_button: "Видели - показать другое",
-        restart_button: "Начать сначала",
-        loading: "Загрузка...",
-        name: "Название: ",
-        year: "Год: ",
-        rating: "Рейтинг: ",
-        overview: "Описание:",
-        no_results: "Нет результатов 😢",
-        no_results_desc: "Попробуйте изменить свои предпочтения",
-        // НОВОЕ СООБЩЕНИЕ
-        weakened_filters_warning: "⚠️ Мы расширили поиск. Фильтры жанров для {characterName} были проигнорированы, чтобы найти хоть какой-то контент.",
-    },
-    en: {
-        title: "Meet your movie match!",
-        info_button: "More details..",
-        more_button: "Seen it - show another",
-        restart_button: "Start over",
-        loading: "Loading...",
-        name: "Name: ",
-        year: "Year: ",
-        rating: "Rating: ",
-        overview: "Overview:",
-        no_results: "No results found 😢",
-        no_results_desc: "Try changing your preferences",
-        // НОВОЕ СООБЩЕНИЕ
-        weakened_filters_warning: "⚠️ We broadened the search. Genre filters for {characterName} were ignored to find any content.",
-    }
+  ua: {
+    title: "Зустріньте свою кінопару!",
+    info_button: "Більше деталей..",
+    more_button: "Бачили - показати інше",
+    loading: "Завантаження...",
+    name: "Назва: ",
+    no_results: "На жаль, нічого не знайдено. Спробуйте інші параметри."
+  },
+  ru: {
+    title: "Встретьте свою кино-пару!",
+    info_button: "Больше деталей..",
+    more_button: "Видели - показать другое",
+    loading: "Загрузка...",
+    name: "Название: ",
+    no_results: "К сожалению, ничего не найдено. Попробуйте другие параметры."
+  },
+  en: {
+    title: "Meet your movie match!",
+    info_button: "More details..",
+    more_button: "Seen it - show another",
+    loading: "Loading...",
+    name: "Name: ",
+    no_results: "Sorry, nothing found. Try different parameters."
+  }
 };
 
-export default function Results({
-    movies = [],
-    onRestart,
-    lang = "ua",
-    loading = false,
-    didWeakenFilters = false, // НОВОЕ
-    characterName = null,     // НОВОЕ
+// Маппинг жанров на TMDB ID
+const GENRE_MAPPING = {
+  // Основные жанры
+  "Action": 28, "Бойовик": 28, "Боевик": 28,
+  "Adventure": 12, "Пригоди": 12, "Приключения": 12,
+  "Comedy": 35, "Комедія": 35, "Комедия": 35,
+  "Drama": 18, "Драма": 18,
+  "Romance": 10749, "Романтика": 10749,
+  "Fantasy": 14, "Фентезі": 14, "Фэнтези": 14,
+  "Sci-Fi": 878, "Наукова фантастика": 878, "Научная фантастика": 878,
+  "Mystery": 9648, "Містика / Детектив": 9648, "Мистика / Детектив": 9648,
+  "Horror": 27, "Жахи": 27, "Ужасы": 27,
+  "Thriller": 53, "Трилер": 53, "Триллер": 53,
+  "Crime": 80, "Кримінал": 80, "Криминал": 80,
+  "Family": 10751, "Сімейний": 10751, "Семейный": 10751,
+  "Musical": 10402, "Мюзикл": 10402,
+  "Documentary": 99, "Документальний": 99, "Документальный": 99,
+  "Western": 37, "Вестерн": 37,
+  "War": 10752, "Військовий": 10752, "Военный": 10752,
+  "Historical": 36, "Історичний": 36, "Исторический": 36,
+  "Sports": 9805, "Спорт": 9805,
+};
+
+export default function Results({ 
+  movies, 
+  onRestart, 
+  lang = "ua",
+  participants = [],
+  contentType = "movie"
 }) {
-    const [idx, setIdx] = useState(0);
-    const text = labels[lang];
+  const [tmdbResults, setTmdbResults] = useState([]);
+  const [idx, setIdx] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-    // Показываем загрузку
-    if (loading) {
-        return (
-            <div className="result-screen">
-                <div className="loading-animation">
-                    <div className="film-logo" style={{ fontSize: "100px" }}>🎬</div>
-                    <h2>{text.loading}</h2>
-                </div>
-            </div>
-        );
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        setError(false);
+
+        // Собираем все лайки пользователей
+        const allLikes = participants.flatMap(p => p.likes || []);
+        
+        // Конвертируем названия жанров в TMDB ID
+        const genreIds = [...new Set(
+          allLikes
+            .map(genre => GENRE_MAPPING[genre])
+            .filter(id => id !== undefined)
+        )];
+
+        console.log('🎬 Searching for genres:', allLikes);
+        console.log('🎬 TMDB Genre IDs:', genreIds);
+
+        // Если нет жанров, используем популярные
+        if (genreIds.length === 0) {
+          console.log('⚠️ No genre IDs found, fetching popular content');
+          const res = await getPopularContent(contentType);
+          setTmdbResults(res.results || []);
+        } else {
+          // Запрашиваем по жанрам
+          const res = await getByGenres(contentType, genreIds);
+          console.log('✅ TMDB Response:', res);
+          
+          if (res.results && res.results.length > 0) {
+            // Фильтруем по декаде если указана
+            let filtered = res.results;
+            
+            const decades = participants
+              .map(p => p.decade)
+              .filter(d => d !== null && d !== undefined);
+            
+            if (decades.length > 0) {
+              filtered = filtered.filter(movie => {
+                const year = movie.release_date?.slice(0, 4);
+                const movieDecade = Math.floor(year / 10) * 10;
+                return decades.some(d => movieDecade === d || Math.abs(movieDecade - d) <= 10);
+              });
+            }
+            
+            setTmdbResults(filtered.length > 0 ? filtered : res.results);
+          } else {
+            setError(true);
+          }
+        }
+      } catch (e) {
+        console.error("❌ TMDB error:", e);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
     }
+    
+    fetchData();
+  }, [participants, contentType]);
 
-    // Если нет результатов
-    if (!movies || movies.length === 0) {
-        return (
-            <div className="result-screen">
-                <h2 className="result-title">{text.no_results}</h2>
-                <p style={{ fontSize: "14px", marginTop: "20px" }}>
-                    {text.no_results_desc}
-                </p>
-                <div style={{ marginTop: "30px" }}>
-                    <button onClick={onRestart} className="btn btn-active">
-                        {text.restart_button}
-                    </button>
-                </div>
-            </div>
-        );
-    }
+  // Функция для получения популярного контента (fallback)
+  async function getPopularContent(type) {
+    const url = `https://api.themoviedb.org/3/discover/${type}`;
+    const params = new URLSearchParams({
+      api_key: import.meta.env.VITE_TMDB_KEY,
+      sort_by: 'popularity.desc',
+      page: '1'
+    });
+    
+    const res = await fetch(`${url}?${params}`);
+    if (!res.ok) throw new Error("TMDB fetch error");
+    return await res.json();
+  }
 
-    const current = movies[idx];
-    const next = () => setIdx((i) => (i + 1) % movies.length);
-
-    // Форматирование предупреждения
-    const warningMessage = didWeakenFilters
-        ? text.weakened_filters_warning.replace("{characterName}", characterName || "персонажа")
-        : null;
-
-    // Функция для получения IMDB ссылки (если есть)
-    const getIMDBLink = (movie) => {
-        // TMDb не всегда возвращает imdb_id, поэтому можем искать по названию
-        const searchQuery = encodeURIComponent(`${movie.title} ${movie.year}`);
-        return `https://www.imdb.com/find?q=${searchQuery}`;
-    };
-
+  if (loading) {
     return (
-        <div className="result-screen">
-            <h2 className="result-title">{text.title}</h2>
-            
-            {/* НОВОЕ: Отображение предупреждения об ослаблении фильтров */}
-            {warningMessage && (
-                <div style={{
-                    color: '#ffc107',
-                    backgroundColor: 'rgba(255,193,7,0.1)',
-                    padding: '10px 15px',
-                    borderRadius: '8px',
-                    marginBottom: '20px',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    maxWidth: '450px',
-                    margin: '0 auto 20px'
-                }}>
-                    {warningMessage}
-                </div>
-            )}
-            
-            <div className="result-content">
-                <h3 className="result-name">
-                    {current.title}
-                    {current.year && ` (${current.year})`}
-                </h3>
-
-                {current.poster && (
-                    <img
-                        src={current.poster}
-                        alt={current.title}
-                        className="result-poster"
-                        style={{
-                            borderRadius: "12px",
-                            maxWidth: "400px",
-                            width: "100%",
-                            marginBottom: "20px",
-                            boxShadow: "0 8px 20px rgba(0,0,0,0.3)"
-                        }}
-                    />
-                )}
-
-                {!current.poster && (
-                    <div className="poster-placeholder" style={{
-                        width: "400px",
-                        height: "600px",
-                        marginBottom: "20px"
-                    }}>
-                        🎬
-                    </div>
-                )}
-
-                <div className="result-info" style={{
-                    textAlign: "left",
-                    maxWidth: "400px",
-                    margin: "0 auto"
-                }}>
-                    {current.rating && (
-                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>
-                            <strong>{text.rating}</strong> ⭐ {current.rating.toFixed(1)}/10
-                        </p>
-                    )}
-
-                    {current.overview && (
-                        <div style={{
-                            fontSize: "12px",
-                            lineHeight: "1.6",
-                            marginTop: "15px",
-                            padding: "15px",
-                            background: "rgba(255,255,255,0.1)",
-                            borderRadius: "8px"
-                        }}>
-                            <strong>{text.overview}</strong>
-                            <p style={{ marginTop: "8px" }}>{current.overview}</p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="result-actions" style={{ marginTop: "30px" }}>
-                    <a
-                        href={getIMDBLink(current)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn btn-active"
-                        style={{ marginRight: "10px" }}
-                    >
-                        {text.info_button}
-                    </a>
-
-                    <button
-                        onClick={next}
-                        className="btn btn-active"
-                        style={{ marginRight: "10px" }}
-                    >
-                        {text.more_button}
-                    </button>
-
-                    <button
-                        onClick={onRestart}
-                        className="btn btn-reset"
-                    >
-                        {text.restart_button}
-                    </button>
-                </div>
-
-                <div style={{
-                    marginTop: "20px",
-                    fontSize: "12px",
-                    opacity: "0.7"
-                }}>
-                    {idx + 1} / {movies.length}
-                </div>
-            </div>
-        </div>
+      <div className="result-screen">
+        <p>{labels[lang].loading}</p>
+      </div>
     );
+  }
+
+  if (error || !tmdbResults.length) {
+    return (
+      <div className="result-screen">
+        <h2 className="result-title">😔</h2>
+        <p>{labels[lang].no_results}</p>
+        <button onClick={onRestart} className="btn-reset" style={{ marginTop: 20 }}>
+          {lang === 'ua' ? 'Почати спочатку' : lang === 'ru' ? 'Начать сначала' : 'Start over'}
+        </button>
+      </div>
+    );
+  }
+
+  const current = tmdbResults[idx];
+  const next = () => setIdx((i) => (i + 1) % tmdbResults.length);
+
+  return (
+    <div className="result-screen">
+      <h2 className="result-title">{labels[lang].title}</h2>
+      <h3 className="result-name">
+        {labels[lang].name}
+        {current.title || current.name} ({(current.release_date || current.first_air_date)?.slice(0, 4)})
+      </h3>
+      
+      {current.poster_path ? (
+        <img
+          src={`https://image.tmdb.org/t/p/w500${current.poster_path}`}
+          alt={current.title || current.name}
+          style={{ borderRadius: 12, maxWidth: "40%", marginBottom: 10 }}
+        />
+      ) : (
+        <div className="poster-placeholder">
+          {lang === 'ua' ? 'Немає постера' : lang === 'ru' ? 'Нет постера' : 'No poster'}
+        </div>
+      )}
+      
+      <div style={{ marginTop: 10 }}>
+        <a
+          href={`https://www.themoviedb.org/${contentType}/${current.id}`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-info"
+        >
+          {labels[lang].info_button}
+        </a>
+        <button onClick={next} className="btn-more" style={{ marginLeft: 8 }}>
+          {labels[lang].more_button}
+        </button>
+      </div>
+    </div>
+  );
 }
