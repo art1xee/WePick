@@ -1,6 +1,6 @@
 // tmdbService.js или где у вас вся логика API
 
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+const TMDB_KEY = import.meta.env.VITE_TMDB_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
 const GENRE_MAPPING = {
@@ -109,7 +109,17 @@ export const fetchTVShows = async (
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
     // ... (остальной код fetchTVShows) ...
+    const params = new URLSearchParams({
+      api_key: TMDB_KEY,
+      sort_by: "popularity.desc",
+      with_genres: likeIds.join(","),
+      without_genres: dislikeIds.join(","),
+      vote_count_gte: "100",
+      language,
+    }).toString();
+
     const response = await fetch(`${BASE_URL}/discover/tv?${params}`);
+
     const data = await response.json();
     return data.results.map(/* ... */);
   } catch (error) {
