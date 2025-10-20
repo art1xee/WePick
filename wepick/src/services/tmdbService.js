@@ -88,9 +88,27 @@ export const fetchMovies = async (
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
     // ... (остальной код fetchMovies) ...
+    const params = new URLSearchParams({
+      api_key: TMDB_KEY,
+      sort_by: "popularity.desc",
+      with_genres: likeIds.join(","),
+      without_genres: dislikeIds.join(","),
+      vote_count_gte: "100",
+      language,
+    }).toString();
+
     const response = await fetch(`${BASE_URL}/discover/movie?${params}`);
     const data = await response.json();
-    return data.results.map(/* ... */);
+    return data.results.map((m) => ({
+      id: m.id,
+      title: m.title,
+      overview: m.overview,
+      rating: m.vote_average,
+      poster: m.poster_path
+        ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+        : null,
+      year: m.release_date ? m.release_date.split("-")[0] : "N/A",
+    }));
   } catch (error) {
     console.error("Ошибка при загрузке фильмов:", error);
     return [];
@@ -109,6 +127,7 @@ export const fetchTVShows = async (
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
     // ... (остальной код fetchTVShows) ...
+
     const params = new URLSearchParams({
       api_key: TMDB_KEY,
       sort_by: "popularity.desc",
@@ -119,9 +138,18 @@ export const fetchTVShows = async (
     }).toString();
 
     const response = await fetch(`${BASE_URL}/discover/tv?${params}`);
-
     const data = await response.json();
-    return data.results.map(/* ... */);
+
+    return data.results.map((s) => ({
+      id: s.id,
+      title: s.name || s.original_name,
+      overview: s.overview,
+      rating: s.vote_average,
+      poster: s.poster_path
+        ? `https://image.tmdb.org/t/p/w500${s.poster_path}`
+        : null,
+      year: s.first_air_date ? s.first_air_date.split("-")[0] : "N/A",
+    }));
   } catch (error) {
     console.error("Ошибка при загрузке сериалов:", error);
     return [];
