@@ -9,22 +9,22 @@ import React, { useState } from "react";
 
 const labels = {
   ua:{
-    title_dislikes:"{name} Обери 3 жанри, які ти НЕ хочеш - дивитись.",
-    title_like: "{name} Обери 3 жанри, які ти ХОЧЕШ - дивитись.",
+    title_dislikes:"{name} Обери 3 жанри, які тобі НЕ по душі.",
+    title_like: "{name} Обери 3 жанри, які тобі до ВПОДОБИ.",
     next: "Далі!",
     decade: "{name} Обери декаду:",
     save: "Зберегти!",
   },
   ru:{
-    title_dislikes:"{name} Выберите 3 жанра, которые ты НЕ хочешь - смотреть.", 
-    title_like: "{name} Выберите 3 жанра, который ты ХОЧЕШЬ - смотреть.",     
+    title_dislikes:"{name} Выбери 3 жанра, которые тебе НЕ по душе.", 
+    title_like: "{name} Выбери 3 жанра, которые тебе НРАВЯТСЯ.",     
     next: "Далее!",
     decade: "{name} Выбери декаду:",
     save: "Сохранить!",
   },
   en:{
-    title_dislikes:"{name} Select 3 genres that you do NOT want to watch..",
-    title_like: "{name} Select 3 genres that you WANT to watch.",
+    title_dislikes:"{name} Select 3 genres that you do NOT like.",
+    title_like: "{name} Select 3 genres that you LIKE.",
     next: "Next!",
     decade: "{name} Select a decade:",
     save: "Save!",
@@ -104,7 +104,7 @@ const UNIFIED_GENRE_CARD_STYLE = {
 };
 
 
-export default function PreferencesFlow({ lang = "ua", participant, onSave, onNext, onChoose, userName }) {
+export default function PreferencesFlow({ lang = "ua", participant, onSave, userName }) {
   const { dislikeOptions, likeOptions } = getCombinedGenres(lang);
   
   const [step, setStep] = useState("dislikes"); // 'dislikes'|'likes'

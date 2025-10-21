@@ -3,11 +3,11 @@ import Loading from "./Loading"; // NOTE: This component is likely named Loading
 
 const labels = { 
   ua: { 
-    title: "Привіт {name}! Оберіть, контент який ви хочете подивитися.", 
+    title: "Привіт {name}! Обери, контент який ти хочеш подивитися.", 
     next: "Далі!" 
   }, 
   ru: { 
-    title: "Привет {name}! Выберите контент, который вы хотите посмотреть.", 
+    title: "Привет {name}! Выбери контент, который ты хочешь посмотреть.", 
     next: "Далее!" 
   }, 
   en: { 
