@@ -157,7 +157,8 @@ export default function Results({
                 )}
 
                 <div className="result-info" style={{
-                    textAlign: "left",
+                    textAlign: "center",
+                    color: "#111",
                     maxWidth: "400px",
                     margin: "0 auto"
                 }}>
