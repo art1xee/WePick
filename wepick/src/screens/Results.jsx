@@ -109,11 +109,13 @@ export default function Results({
             {/* НОВОЕ: Отображение предупреждения об ослаблении фильтров */}
             {warningMessage && (
                 <div style={{
-                    color: '#ffc107',
+                    color: '#015c65',
                     backgroundColor: 'rgba(255,193,7,0.1)',
                     padding: '10px 15px',
                     borderRadius: '8px',
                     marginBottom: '20px',
+                    textAlign: 'center',
+                    display:'flex',
                     fontSize: '14px',
                     fontWeight: 'bold',
                     maxWidth: '450px',
@@ -165,9 +167,11 @@ export default function Results({
                         </p>
                     )}
 
-                    {current.overview && (
+
+
+                    {/* {current.overview && ( <----- //можно расскоментировать, если хочется показывать описание, но с ним бывает баги связанные с языком 
                         <div style={{
-                            fontSize: "12px",
+                            fontSize: "1px",
                             lineHeight: "1.6",
                             marginTop: "15px",
                             padding: "15px",
@@ -177,7 +181,7 @@ export default function Results({
                             <strong>{text.overview}</strong>
                             <p style={{ marginTop: "8px" }}>{current.overview}</p>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 <div className="result-actions" style={{ marginTop: "30px" }}>
