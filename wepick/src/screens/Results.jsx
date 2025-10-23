@@ -13,8 +13,9 @@ const labels = {
         overview: "Опис:",
         no_results: "Немає результатів 😢",
         no_results_desc: "Спробуйте змінити свої вподобання",
-        // НОВОЕ СООБЩЕНИЕ
         weakened_filters_warning: "⚠️ Ми розширили пошук. Фільтри жанрів для {characterName} були проігноровані, щоб знайти хоч якийсь контент.",
+        type: "Тип: ",
+        episodes: "Епізоди: ",
     },
     ru: {
         title: "Встретьте свою кино-пару!",
@@ -28,8 +29,9 @@ const labels = {
         overview: "Описание:",
         no_results: "Нет результатов 😢",
         no_results_desc: "Попробуйте изменить свои предпочтения",
-        // НОВОЕ СООБЩЕНИЕ
         weakened_filters_warning: "⚠️ Мы расширили поиск. Фильтры жанров для {characterName} были проигнорированы, чтобы найти хоть какой-то контент.",
+        type: "Тип: ",
+        episodes: "Эпизоды: ",
     },
     en: {
         title: "Meet your movie match!",
@@ -43,8 +45,9 @@ const labels = {
         overview: "Overview:",
         no_results: "No results found 😢",
         no_results_desc: "Try changing your preferences",
-        // НОВОЕ СООБЩЕНИЕ
         weakened_filters_warning: "⚠️ We broadened the search. Genre filters for {characterName} were ignored to find any content.",
+        type: "Type: ",
+        episodes: "Episodes: ",
     }
 };
 
@@ -53,8 +56,9 @@ export default function Results({
     onRestart,
     lang = "ua",
     loading = false,
-    didWeakenFilters = false, // НОВОЕ
-    characterName = null,     // НОВОЕ
+    didWeakenFilters = false,
+    characterName = null,
+    contentType = null, // Добавляем contentType для определения типа контента
 }) {
     const [idx, setIdx] = useState(0);
     const text = labels[lang];
@@ -84,7 +88,8 @@ export default function Results({
                         {text.restart_button}
                     </button>
                 </div>
-            </div>        );
+            </div>
+        );
     }
 
     const current = movies[idx];
@@ -95,9 +100,20 @@ export default function Results({
         ? text.weakened_filters_warning.replace("{characterName}", characterName || "персонажа")
         : null;
 
-    // Функция для получения IMDB ссылки (если есть)
-    const getIMDBLink = (movie) => {
-        // TMDb не всегда возвращает imdb_id, поэтому можем искать по названию
+    // Функция для получения ссылки на детали (IMDB для фильмов/сериалов, MAL для аниме)
+    const getDetailsLink = (movie) => {
+        // Если это аниме и есть прямая ссылка на MAL
+        if (contentType === "anime" && movie.malUrl) {
+            return movie.malUrl;
+        }
+        
+        // Если это аниме но нет malUrl, ищем на MAL
+        if (contentType === "anime") {
+            const searchQuery = encodeURIComponent(movie.title);
+            return `https://myanimelist.net/anime.php?q=${searchQuery}`;
+        }
+        
+        // Для фильмов и сериалов используем IMDB
         const searchQuery = encodeURIComponent(`${movie.title} ${movie.year}`);
         return `https://www.imdb.com/find?q=${searchQuery}`;
     };
@@ -106,9 +122,20 @@ export default function Results({
         <div className="result-screen">
             <h2 className="result-title">{text.title}</h2>
             
-            {/* НОВОЕ: Отображение предупреждения об ослаблении фильтров */}
+            {/* Отображение предупреждения об ослаблении фильтров */}
             {warningMessage && (
-                <div className="result-warning-message" >
+                <div style={{
+                    color: '#015c65',
+                    backgroundColor: 'rgba(255,193,7,0.1)',
+                    padding: '10px 15px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    textAlign: 'center',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    maxWidth: '450px',
+                    margin: '0 auto 20px'
+                }}>
                     {warningMessage}
                 </div>
             )}
@@ -124,12 +151,19 @@ export default function Results({
                         src={current.poster}
                         alt={current.title}
                         className="result-poster"
+                        style={{
+                            borderRadius: "12px",
+                            maxWidth: "400px",
+                            width: "100%",
+                            marginBottom: "20px",
+                            boxShadow: "0 8px 20px rgba(0,0,0,0.3)"
+                        }}
                     />
                 )}
 
                 {!current.poster && (
                     <div className="poster-placeholder" style={{
-                        width: "300px",
+                        width: "400px",
                         height: "600px",
                         marginBottom: "20px"
                     }}>
@@ -137,41 +171,43 @@ export default function Results({
                     </div>
                 )}
 
-                <div className="result-info"   >
-
+                <div className="result-info" style={{
+                    textAlign: "center",
+                    color: "#111",
+                    maxWidth: "400px",
+                    margin: "0 auto"
+                }}>
                     {current.rating && (
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>
                             <strong>{text.rating}</strong> ⭐ {current.rating.toFixed(1)}/10
                         </p>
                     )}
 
+                    {/* Показываем тип для аниме (TV, Movie, OVA и т.д.) */}
+                    {contentType === "anime" && current.type && (
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>
+                            <strong>{text.type}</strong> {current.type}
+                        </p>
+                    )}
 
-
-                    {/* {current.overview && ( <----- //можно расскоментировать, если хочется показывать описание, но с ним бывает баги связанные с языком 
-                        <div style={{
-                            fontSize: "1px",
-                            lineHeight: "1.6",
-                            marginTop: "15px",
-                            padding: "15px",
-                            background: "rgba(255,255,255,0.1)",
-                            borderRadius: "8px"
-                        }}>
-                            <strong>{text.overview}</strong>
-                            <p style={{ marginTop: "8px" }}>{current.overview}</p>
-                        </div>
-                    )} */}
+                    {/* Показываем количество эпизодов для аниме */}
+                    {contentType === "anime" && current.episodes && (
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>
+                            <strong>{text.episodes}</strong> {current.episodes}
+                        </p>
+                    )}
                 </div>
 
                 <div className="result-actions" style={{ marginTop: "30px" }}>
-                    {/* <a
-                        href={getIMDBLink(current)}
+                    <a
+                        href={getDetailsLink(current)}
                         target="_blank"
                         rel="noreferrer"
                         className="btn btn-active"
                         style={{ marginRight: "10px" }}
                     >
                         {text.info_button}
-                    </a> */}
+                    </a>
 
                     <button
                         onClick={next}
@@ -189,7 +225,11 @@ export default function Results({
                     </button>
                 </div>
 
-                <div className="result-int-pages"    >
+                <div style={{
+                    marginTop: "20px",
+                    fontSize: "12px",
+                    opacity: "0.7"
+                }}>
                     {idx + 1} / {movies.length}
                 </div>
             </div>

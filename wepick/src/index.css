@@ -919,13 +919,7 @@ body {
   color: var(--text-color);
 }
 
-.result-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 20px;
-  color: var(--accent);
-  text-shadow: 2px 2px 0 #fff;
-}
+
 
 .result-content {
   display: flex;
@@ -955,6 +949,8 @@ body {
   max-width: 450px;
   margin: 0 auto 5px;
 }
+
+
 
 .result-name {
   text-align: center;
