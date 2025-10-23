@@ -28,6 +28,7 @@
 --color-summary-dislike: #ff6b6b;
 --color-summary-like-content:rgba(68, 255, 68, 0.2);
 --color-summary-decade-content:rgba(68, 68, 255, 0.2);
+
 }
 
 * {
@@ -481,6 +482,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 2px;
   justify-content: flex-start;
   padding-top: 70px;
   min-height: 21vh;
@@ -899,68 +901,132 @@ body {
 /* ================================================= */
 /* ⚪ . RESULTS SCREEN */
 /* ================================================= */
-.result-screen{
+.result-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 60px;
-  min-height: 21vh;
-  min-width: 40vh;
+  padding: 40px 20px;
+  min-height: 60vh;
+  min-width: 60vh;
   border-radius: 30px;
   background-color: var(--card-screen);
   color: var(--text-color);
-  padding: 10px;
 }
 
-.result-title{
+.result-title {
   text-align: center;
-  padding: 10px;
-  border-radius: 8px;
+  margin-bottom: 30px;
+  font-size: 20px;
   color: var(--accent);
-}
-.result-name{
-   text-align: center;
-  padding: 10px;
-  border-radius: 8px;
+  text-shadow: 2px 2px 0 #fff;
 }
 
-  .btn-more{
-  font-family: "Press Start 2P", cursive;
-  padding: 12px 40px;
-  margin-bottom: 35px;
-  border-radius: 11px;
-  border: 4px solid #111;
+.result-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.result-name {
+  text-align: center;
+  margin-bottom: 20px;
   font-size: 16px;
-  cursor: pointer;
-  color: #fff;
-  background: var(--accent);
-  box-shadow: 4px 4px 0px #111;
-  transition: all 0.1s ease;
-
-  display: flex; /* Делаем кнопку flex-контейнером */
-  align-items: flex-end; /* Выравниваем элементы по нижнему краю */
-  justify-content: center; /* Центрируем по горизонтали */
-  text-align: center; /* Центрируем текст внутри каждой строки */
+  line-height: 1.4;
+  color: var(--text-color);
 }
 
-.btn-info{
-  font-family: "Press Start 2P", cursive;
-  padding: 12px 40px;
-  margin-bottom: 35px;
-  border-radius: 11px;
+.result-poster {
   border: 4px solid #111;
-  font-size: 16px;
-  cursor: pointer;
-  color: #111;
-  background: var(--btn-reset-bg);
-  box-shadow: 4px 4px 0px #111;
-  transition: all 0.1s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
 
-  display: flex; /* Делаем кнопку flex-контейнером */
-  align-items: flex-end; /* Выравниваем элементы по нижнему краю */
-  justify-content: center; /* Центрируем по горизонтали */
-  text-align: center; /* Центрируем текст внутри каждой строки */
+.result-info {
+  width: 100%;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.loading-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.loading-animation .film-logo {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Responsive для Results */
+@media (max-width: 768px) {
+  .result-screen {
+    min-width: 90vw;
+    padding: 30px 15px;
+  }
+
+  .result-title {
+    font-size: 16px;
+  }
+
+  .result-name {
+    font-size: 14px;
+  }
+
+  .result-poster {
+    max-width: 300px !important;
+  }
+
+  .result-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .result-actions .btn {
+    width: 100%;
+    margin: 5px 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .result-screen {
+    min-width: 95vw;
+    padding: 20px 10px;
+  }
+
+  .result-title {
+    font-size: 14px;
+  }
+
+  .result-name {
+    font-size: 12px;
+  }
+
+  .result-poster {
+    max-width: 250px !important;
+  }
+
+  .result-info p,
+  .result-info strong {
+    font-size: 10px;
+  }
 }
 
 /* ================================================= */

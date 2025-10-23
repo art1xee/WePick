@@ -1,12 +1,10 @@
 const TMDB_KEY = import.meta.env.VITE_TMDB_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
-// универсальный запрос
 export async function tmdbFetch(endpoint, params = {}) {
   const url = new URL(`${BASE_URL}${endpoint}`);
   params.api_key = TMDB_KEY;
   Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
-
   const res = await fetch(url);
   if (!res.ok) throw new Error("TMDB fetch error");
   return await res.json();
