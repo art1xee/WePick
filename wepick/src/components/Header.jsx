@@ -6,19 +6,19 @@ const texts = {
     title: "Про WePick!",
     main: "WePick! — це зручний інструмент для вибору фільмів, \nсеріалів або іншого контенту, який сподобається всім учасникам.\nВи встановлюєте спільні фільтри, а ми пропонуємо ідеальний варіант.",
     button: "Почати спочатку",
-    version: "Версія MVP — локальна база даних."
+    version: "Код цього додатку доступний на GitHub: "
   },
   ru: {
     title: "О WePick!",
     main: "WePick! — это удобный инструмент для выбора фильмов, \nсериалов или другого контента, который понравится всем участникам.\nВы устанавливаете общие фильтры, а мы предлагаем идеальный вариант.",
     button: "Начать сначала",
-    version: "Версия MVP — локальная база данных."
+    version: "Код этого приложения доступен на GitHub: "
   },
   en: {
     title: "About WePick!",
     main: "WePick! is a convenient tool for choosing movies, \nseries, or other content that everyone will enjoy.\nYou set common filters, and we suggest the perfect option.",
     button: "Start over",
-    version: "MVP version — local database."
+    version: "The code for this application is available on GitHub: "
   }
 }
 
@@ -111,6 +111,7 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
             
             {/* Динамическая информация о версии */}
             <p className="menu-version">{currentTexts.version}</p>
+             <a href="https://github.com/art1xee/WePick" className="menu-github"> WePick!</a>
           </div>
         </div>
       </div>
