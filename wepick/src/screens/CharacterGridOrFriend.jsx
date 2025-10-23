@@ -25,13 +25,13 @@ const characters = [
 const labels = {
   ua: { 
     title_char: "З ким ти хочеш зіграти в WePick?", 
-    title_friend: "Передайте пристрій другу — нехай введе своє ім'я",
+    title_friend: "Передай пристрій другу — нехай введе своє ім'я",
     placeholder: "Ім'я друга",
     next: "Далі!" 
   },
   ru: { 
     title_char: "С кем ты хочешь сыграть в WePick?", 
-    title_friend: "Передайте устройство другу — пусть введёт своё имя",
+    title_friend: "Передай устройство другу — пусть введёт своё имя",
     placeholder: "Имя друга",
     next: "Далее!" 
   },
