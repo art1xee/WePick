@@ -919,8 +919,6 @@ body {
   color: var(--text-color);
 }
 
-
-
 .result-content {
   display: flex;
   flex-direction: column;
@@ -928,13 +926,20 @@ body {
   width: 100%;
   max-width: 500px;
 }
-.result-int-pages {
+.result-index {
   color: #111;
   margin-top: 20px;
   font-size: 13px;
   opacity: 1;
 }
 
+.result-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 20px;
+  color: var(--accent);
+  text-shadow: 2px 2px 0 #fff;
+}
 .result-warning-message {
   color: #111;
   background-color: rgba(225, 193, 7, 0.1);
@@ -949,7 +954,6 @@ body {
   max-width: 450px;
   margin: 0 auto 5px;
 }
-
 
 
 .result-name {

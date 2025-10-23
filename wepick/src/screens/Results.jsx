@@ -124,18 +124,7 @@ export default function Results({
             
             {/* Отображение предупреждения об ослаблении фильтров */}
             {warningMessage && (
-                <div style={{
-                    color: '#015c65',
-                    backgroundColor: 'rgba(255,193,7,0.1)',
-                    padding: '10px 15px',
-                    borderRadius: '8px',
-                    marginBottom: '20px',
-                    textAlign: 'center',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    maxWidth: '450px',
-                    margin: '0 auto 20px'
-                }}>
+                <div className="result-warning-message">
                     {warningMessage}
                 </div>
             )}
@@ -199,7 +188,7 @@ export default function Results({
                 </div>
 
                 <div className="result-actions" style={{ marginTop: "30px" }}>
-                    <a
+                    {/* <a
                         href={getDetailsLink(current)}
                         target="_blank"
                         rel="noreferrer"
@@ -207,7 +196,7 @@ export default function Results({
                         style={{ marginRight: "10px" }}
                     >
                         {text.info_button}
-                    </a>
+                    </a> */}
 
                     <button
                         onClick={next}
@@ -225,11 +214,7 @@ export default function Results({
                     </button>
                 </div>
 
-                <div style={{
-                    marginTop: "20px",
-                    fontSize: "12px",
-                    opacity: "0.7"
-                }}>
+                <div className="result-index" >
                     {idx + 1} / {movies.length}
                 </div>
             </div>
