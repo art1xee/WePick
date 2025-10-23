@@ -76,18 +76,17 @@ const genresToIds = (genresName) => {
   return genresName.map((name) => GENRE_MAPPING[name]).filter(Boolean);
 };
 
-// Получить фильмы по жанрам и декаде
+// ============================= ФИЛЬМЫ =============================
 export const fetchMovies = async (
   likes,
   dislikes,
   decade,
   language = "en-US"
 ) => {
-  // ... (ваш существующий код fetchMovies)
   try {
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
-    // ... (остальной код fetchMovies) ...
+
     const params = new URLSearchParams({
       api_key: TMDB_KEY,
       sort_by: "popularity.desc",
@@ -99,6 +98,7 @@ export const fetchMovies = async (
 
     const response = await fetch(`${BASE_URL}/discover/movie?${params}`);
     const data = await response.json();
+
     return data.results.map((m) => ({
       id: m.id,
       title: m.title,
@@ -115,18 +115,16 @@ export const fetchMovies = async (
   }
 };
 
-// Получить сериалы
+// ============================= СЕРИАЛЫ =============================
 export const fetchTVShows = async (
   likes,
   dislikes,
   decade,
   language = "en-US"
 ) => {
-  // ... (ваш существующий код fetchTVShows)
   try {
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
-    // ... (остальной код fetchTVShows) ...
 
     const params = new URLSearchParams({
       api_key: TMDB_KEY,
@@ -156,47 +154,75 @@ export const fetchTVShows = async (
   }
 };
 
-// =================================================================
-// НОВАЯ ЛОГИКА TMDb SERVICE (с двухуровневым поиском)
-// =================================================================
+// ============================= АНИМЕ =============================
+// фильтруем по оригинальному языку: 'ja' (японский)
+export const fetchAnime = async (
+  likes,
+  dislikes,
+  decade,
+  language = "ja-JP"
+) => {
+  try {
+    const likeIds = genresToIds(likes);
+    const dislikeIds = genresToIds(dislikes);
 
-// ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ для выполнения запроса к API
+    const params = new URLSearchParams({
+      api_key: TMDB_KEY,
+      sort_by: "popularity.desc",
+      with_genres: likeIds.join(","),
+      without_genres: dislikeIds.join(","),
+      with_original_language: "ja",
+      vote_count_gte: "50",
+      language,
+    }).toString();
+
+    // Аниме обычно идут в "tv"
+    const response = await fetch(`${BASE_URL}/discover/tv?${params}`);
+    const data = await response.json();
+
+    return data.results.map((a) => ({
+      id: a.id,
+      title: a.name || a.original_name,
+      overview: a.overview,
+      rating: a.vote_average,
+      poster: a.poster_path
+        ? `https://image.tmdb.org/t/p/w500${a.poster_path}`
+        : null,
+      year: a.first_air_date ? a.first_air_date.split("-")[0] : "N/A",
+    }));
+  } catch (error) {
+    console.error("Ошибка при загрузке аниме:", error);
+    return [];
+  }
+};
+
+// ============================= ДВУХУРОВНЕВЫЙ ПОИСК =============================
 const _fetchContent = async (
   contentType,
-  allLikes,
-  allDislikes,
+  likes,
+  dislikes,
   decade,
   language
 ) => {
-  let results = [];
-  if (contentType === "movie" || contentType === "anime") {
-    results = await fetchMovies(allLikes, allDislikes, decade, language);
-  } else if (contentType === "series") {
-    results = await fetchTVShows(allLikes, allDislikes, decade, language);
-  }
-  return results.sort((a, b) => b.rating - a.rating).slice(0, 20);
+  if (contentType === "anime")
+    return fetchAnime(likes, dislikes, decade, language);
+  if (contentType === "series")
+    return fetchTVShows(likes, dislikes, decade, language);
+  return fetchMovies(likes, dislikes, decade, language);
 };
 
-// Получить контент для двух участников (обновлено для двухуровневого поиска)
 export const fetchContentForParticipants = async (
   participants,
   contentType,
   language = "en-US"
 ) => {
-  // 1. Идентифицируем участников
   const user = participants.find((p) => !p.isCharacter);
   const character = participants.find((p) => p.isCharacter);
 
-  let didWeaken = false;
-
-  // 2. Объединяем ВСЕ лайки и дизлайки (Попытка 1)
   let allLikes = [...new Set(participants.flatMap((p) => p.likes || []))];
   let allDislikes = [...new Set(participants.flatMap((p) => p.dislikes || []))];
-
-  // Берем декаду первого участника
   const decade = participants[0]?.decade || 2000;
 
-  // ПОПЫТКА 1: Строгий поиск
   let results = await _fetchContent(
     contentType,
     allLikes,
@@ -204,33 +230,20 @@ export const fetchContentForParticipants = async (
     decade,
     language
   );
+  let didWeaken = false;
 
-  // ПОПЫТКА 2: Ослабленный поиск (если нет результатов И есть персонаж)
   if (results.length === 0 && character) {
-    console.warn(
-      "Нет результатов с полными фильтрами. Повторный поиск без жанров персонажа."
-    );
-
-    // Пересчитываем лайки/дизлайки, ИСКЛЮЧАЯ те, что от персонажа
-    const userLikes = user?.likes || [];
-    const userDislikes = user?.dislikes || [];
-
-    allLikes = [...new Set(userLikes)];
-    allDislikes = [...new Set(userDislikes)];
-
-    // Повторный запрос
+    console.warn("Нет результатов — ослабляем фильтры");
     results = await _fetchContent(
       contentType,
-      allLikes,
-      allDislikes,
+      user?.likes || [],
+      user?.dislikes || [],
       decade,
       language
     );
-
     didWeaken = true;
   }
 
-  // Возвращаем объект, чтобы передать результаты и флаг
   return {
     results,
     didWeakenFilters: didWeaken,
@@ -241,5 +254,6 @@ export const fetchContentForParticipants = async (
 export default {
   fetchMovies,
   fetchTVShows,
+  fetchAnime,
   fetchContentForParticipants,
 };
