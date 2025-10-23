@@ -1,5 +1,7 @@
-import { fetchMovies, fetchTVShows } from "./tmdbService";
-import { getAnimeFromJikan } from "./jikanService";
+// unifiedService.js - Единая точка входа для всех типов контента
+
+import { fetchMovies, fetchTVShows } from "./tmdbService.js";
+import { fetchAnime } from "./jikanService.js"; // <--- ИСПРАВЛЕНО имя импорта
 
 function preferencesFromParticipants(participants) {
   return participants.flatMap((p) => p.likes || []);
@@ -47,8 +49,8 @@ export async function fetchContentForParticipantsUnified(
 
   // 3. Если есть упоминание "аниме" ИЛИ выбран тип "anime" — идём через Jikan
   if (hasAnimePref(allLikes) || contentType === "anime") {
-    const jikanResults = await getAnimeFromJikan(allLikes, 20);
-
+    // <--- ИСПРАВЛЕНО: используется fetchAnime
+    const jikanResults = await fetchAnime(allLikes, 20);
     return {
       results: jikanResults.slice(0, 20),
       didWeakenFilters: false,
@@ -74,7 +76,6 @@ export async function fetchContentForParticipantsUnified(
     console.warn(
       "Нет результатов с полными фильтрами TMDb. Повторный поиск без жанров персонажа."
     );
-
     // Повторный запрос только с предпочтениями пользователя
     results = await _fetchTMDBContent(
       user?.likes || [],
