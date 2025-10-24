@@ -83,7 +83,7 @@ const LoadingScreen = ({text}) => (
 const NoResult = ({ text, onRestart }) => (
   <div className="result-screen">
     <h2 className="result-title">{text.no_results}</h2>
-    <p style={{ fontSize: "14px", marginTop: "20px" }}>
+    <p>
       {text.no_results_desc}
     </p>
     <div style={{ margin: "30px" }}>
@@ -116,51 +116,29 @@ const ResultCard = ({ current, contentType, text }) => (
         src={current.poster}
         alt={current.title}
         className="result-poster"
-        style={{
-          borderRadius: "12px",
-          maxWidth: "400px",
-          width: "100%",
-          marginBottom: "20px",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
-        }}
       />
     ) : (
-      <div
-        className="poster-placehholder"
-        style={{
-          width: "400px",
-          height: "600px",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="poster-placehholder">
         🎬
       </div>
     )}
 
-    <div
-      className="result-info"
-      style={{
-        textAlign: "center",
-        color: "#111",
-        maxWidth: "400px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="result-info">
       {current.rating && (
-        <p style={{ fontSize: "14px", marginBottom: "10px" }}>
+        <p>
           <strong>{text.rating}</strong> ⭐ {current.rating.toFixed(1)}/10
         </p>
       )}
                 {/*content type display*/}
       {contentType === "anime" && current.type && (
-        <p style={{fontSize:"14px", marginBottom:"10px"}}>
+        <p >
           <strong>{text.type}</strong>{current.type}
         </p>
       )}
 
                 {/*episodes display*/}
       {contentType==="anime" && current.episodes &&(
-        <p style={{fontSize:"14px", marginBottom:"10px"}}>
+        <p>
           <strong>{text.episodes}</strong> {current.episodes}
         </p>
       )}
@@ -170,30 +148,24 @@ const ResultCard = ({ current, contentType, text }) => (
 
 const ResultActions = ({ detailsLinks, text, onNext, onRestart }) => (
   <div className="result-actions" style={{ marginTop: "30px" }}>
-    <a
-      href={detailsLinks}
-      target="_blank"
-      rel="noreferrer"
-      className="btn btn-active"
-      style={{ marginRight: "10px" }}
-    >
-      {text.info_button}
-    </a>
-
-    <button
+  <div className="result-more-button">
+      <button
       onClick={onNext}
       className="btn btn-active"
       style={{ marginRight: "10px" }}
     >
       {text.more_button}
     </button>
-
+  </div>
+    
+  <div className="result-restart-button">
     <button onClick={onRestart} className="btn btn-reset">
       {text.restart_button}
-    </button>
+      </button>
+    </div>
+    
   </div>
 );
-
 
 //================== RESULT SCREEN COMPONENT ==========================
 export default function Results({
@@ -237,15 +209,17 @@ const warningMessage = didWeakenFilters
   <div className="result-screen">
     <ResultHeader title={text.title} warningMessage={warningMessage} />
     <ResultCard current={current} contentType={contentType} text={text} />
+    
+    {/* show user how many pages with content left*/}  
+    <div className="result-index">
+      {idx + 1} / {movies.length}
+    </div>
+
     <ResultActions
-      detailsLinks={detailsLinks}
       text={text}
       onNext={next}
       onRestart={onRestart}
     />
-    <div className="result-index">
-      {idx + 1} / {movies.length}
-    </div>
   </div>
   )
 }

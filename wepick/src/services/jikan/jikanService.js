@@ -1,46 +1,9 @@
 // jikanService.js - Сервис для работы с Jikan API (MyAnimeList)
+import { JIKAN_GENRE_MAPPING } from "../../constants/genres.js";
 
 const JIKAN_BASE_URL = "https://api.jikan.moe/v4";
 
 // Маппинг жанров на Jikan API genre IDs
-const JIKAN_GENRE_MAPPING = {
-  // Основные жанры (дополните по необходимости)
-  Action: 1,
-  Бойовик: 1,
-  Боевик: 1,
-
-  Adventure: 2,
-  Пригоди: 2,
-  Приключения: 2,
-
-  Comedy: 4,
-  Комедия: 4,
-  Комедія: 4,
-
-  Drama: 8,
-  Драма: 8,
-
-  Fantasy: 10,
-  Фэнтези: 10,
-  Фентезі: 10,
-
-  Romance: 22,
-  Романтика: 22,
-
-  SciFi: 24,
-  "Наукова фантастика": 24,
-  "Научная фантастика": 24,
-
-  Horror: 14,
-  Ужасы: 14,
-  Жахи: 14,
-
-  SliceOfLife: 36, // Повседневность
-  Повседневность: 36,
-
-  Sports: 30, // Спорт
-  Спорт: 30,
-};
 
 /**
  * Преобразует массив строк (лайков/жанров) в массив Jikan ID.

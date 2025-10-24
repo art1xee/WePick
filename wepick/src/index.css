@@ -955,7 +955,6 @@ body {
   margin: 0 auto 5px;
 }
 
-
 .result-name {
   text-align: center;
   margin-bottom: 20px;
@@ -965,10 +964,8 @@ body {
 }
 
 .result-poster {
-  border: 4px solid #111;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   border-radius: 12px;
-  max-width: 300px;
+  max-width: 400px;
   width: 100%;
   margin-bottom: 20px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
@@ -980,13 +977,19 @@ body {
   color: #111;
   max-width: 400px;
   margin: 0 auto;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .result-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
   gap: 10px;
+}
+
+.result-restart-button{
+  margin-right: 10px;
 }
 
 .loading-animation {

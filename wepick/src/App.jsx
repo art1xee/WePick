@@ -7,8 +7,9 @@ import PreferencesFlow from "./screens/PreferencesFlow.jsx";
 import Summary from "./screens/Summary.jsx";
 import Results from "./screens/Results.jsx";
 import Header from "./components/Header.jsx";
-// ИМПОРТ: Теперь здесь fetchContentForParticipantsUnified
 import { fetchContentForParticipantsUnified } from "./services/unifiend/unifiedService.js";
+import { GENRES } from "./constants/genres.js";
+import { ADDITIONAL_GENRES } from "./constants/genres.js";
 
 const initialState = () => ({
   lang: "ua",
@@ -27,9 +28,9 @@ const initialState = () => ({
   ],
   chosenCharacter: null,
   results: [],
-  loading: false, // Добавляем состояние загрузки
-  didWeakenFilters: false, // <-- ДОБАВИТЬ ЭТО
-  characterName: null,     // <-- ДОБАВИТЬ ЭТО
+  loading: false, 
+  didWeakenFilters: false, 
+  characterName: null,    
 
 });
 
@@ -101,56 +102,8 @@ export default function App() {
   };
 
   const createCharacterParticipant = (char) => {
-    const GENRES = {
-      ua: [
-        "Бойовик", "Пригоди", "Комедія", "Драма",
-        "Романтика", "Фентезі", "Наукова фантастика", "Містика / Детектив",
-        "Жахи", "Трилер", "Повсякденність", "Спорт",
-        "Надприродне", "Історичний", "Військовий", "Кримінал",
-        "Сімейний", "Мюзикл", "Документальний", "Вестерн"
-      ],
-      ru: [
-        "Боевик", "Приключения", "Комедия", "Драма",
-        "Романтика", "Фэнтези", "Научная фантастика", "Мистика / Детектив",
-        "Ужасы", "Триллер", "Повседневность", "Спорт",
-        "Сверхъестественное", "Исторический", "Военный", "Криминал",
-        "Семейный", "Мюзикл", "Документальный", "Вестерн"
-      ],
-      en: [
-        "Action", "Adventure", "Comedy", "Drama",
-        "Romance", "Fantasy", "Sci-Fi", "Mystery",
-        "Horror", "Thriller", "Slice of Life", "Sports",
-        "Supernatural", "Historical", "War", "Crime",
-        "Family", "Musical", "Documentary", "Western"
-      ]
-    };
-
-    const ADDITIONAL = {
-      ua: [
-        "Психологічний", "Супергерої", "Кіберпанк", "Постапокаліпсис",
-        "Меха / Роботи", "Ісекай (інший світ)", "Вампірський", "Монстри",
-        "Шкільний", "Айдоли / Шоу-бізнес", "Романтична комедія", "Зворушливий",
-        "Темне фентезі", "Детектив", "Культова класика", "Добрий / Позитивний",
-        "Мрачний / Жорсткий", "Реальна історія", "Футуристичний", "Про дорослішання"
-      ],
-      ru: [
-        "Психологический", "Супергерои", "Киберпанк", "Постапокалипсис",
-        "Меха / Роботы", "Исекай (другой мир)", "Вампирский", "Монстры",
-        "Школьный", "Айдолы / Шоу-бизнес", "Романтическая комедия", "Душераздирающий",
-        "Тёмное фэнтези", "Детектив", "Культовая классика", "Добрый / Позитивный",
-        "Мрачный / Жёсткий", "Реальная история", "Футуристический", "Про взросление"
-      ],
-      en: [
-        "Psychological", "Superhero", "Cyberpunk", "Post-Apocalyptic",
-        "Mecha / Robots", "Isekai (Another World)", "Vampire", "Monster",
-        "School", "Idol / Showbiz", "Rom-Com", "Tearjerker",
-        "Dark Fantasy", "Detective", "Cult Classic", "Feel Good",
-        "Gritty", "True Story", "Futuristic", "Coming of Age"
-      ]
-    };
-
     const currentLang = state.lang;
-    const allGenres = [...GENRES[currentLang], ...ADDITIONAL[currentLang]];
+    const allGenres = [...GENRES[currentLang], ...ADDITIONAL_GENRES[currentLang]];
 
     const sample = (arr, n) => {
       const a = [...arr];
@@ -188,55 +141,7 @@ export default function App() {
   const updateCharacterGenres = (newLang) => {
     setState((s) => {
       if (s.participants.length > 1 && s.participants[1].isCharacter) {
-        const GENRES = {
-          ua: [
-            "Бойовик", "Пригоди", "Комедія", "Драма",
-            "Романтика", "Фентезі", "Наукова фантастика", "Містика / Детектив",
-            "Жахи", "Трилер", "Повсякденість", "Спорт",
-            "Надприродне", "Історичний", "Військовий", "Кримінал",
-            "Сімейний", "Мюзикл", "Документальний", "Вестерн"
-          ],
-          ru: [
-            "Боевик", "Приключения", "Комедия", "Драма",
-            "Романтика", "Фэнтези", "Научная фантастика", "Мистика / Детектив",
-            "Ужасы", "Триллер", "Повседневность", "Спорт",
-            "Сверхъестественное", "Исторический", "Военный", "Криминал",
-            "Семейный", "Мюзикл", "Документальный", "Вестерн"
-          ],
-          en: [
-            "Action", "Adventure", "Comedy", "Drama",
-            "Romance", "Fantasy", "Sci-Fi", "Mystery",
-            "Horror", "Thriller", "Slice of Life", "Sports",
-            "Supernatural", "Historical", "War", "Crime",
-            "Family", "Musical", "Documentary", "Western"
-          ]
-        };
-
-        const ADDITIONAL = {
-          ua: [
-            "Психологічний", "Супергерої", "Кіберпанк", "Постапокаліпсис",
-            "Меха / Роботи", "Ісекай (інший світ)", "Вампірський", "Монстри",
-            "Шкільний", "Айдоли / Шоу-бізнес", "Романтична комедія", "Зворушливий",
-            "Темне фентезі", "Детектив", "Культова класика", "Добрий / Позитивний",
-            "Мрачний / Жорсткий", "Реальна історія", "Футуристичний", "Про дорослішання"
-          ],
-          ru: [
-            "Психологический", "Супергерои", "Киберпанк", "Постапокалипсис",
-            "Меха / Роботы", "Исекай (другой мир)", "Вампирский", "Монстры",
-            "Школьный", "Айдолы / Шоу-бизнес", "Романтическая комедия", "Душераздирающий",
-            "Тёмное фэнтези", "Детектив", "Культовая классика", "Добрый / Позитивный",
-            "Мрачный / Жёсткий", "Реальная история", "Футуристический", "Про взросление"
-          ],
-          en: [
-            "Psychological", "Superhero", "Cyberpunk", "Post-Apocalyptic",
-            "Mecha / Robots", "Isekai (Another World)", "Vampire", "Monster",
-            "School", "Idol / Showbiz", "Rom-Com", "Tearjerker",
-            "Dark Fantasy", "Detective", "Cult Classic", "Feel Good",
-            "Gritty", "True Story", "Futuristic", "Coming of Age"
-          ]
-        };
-
-        const allGenres = [...GENRES[newLang], ...ADDITIONAL[newLang]];
+        const allGenres = [...GENRES[newLang], ...ADDITIONAL_GENRES[newLang]];
         
         const sample = (arr, n) => {
           const a = [...arr];
