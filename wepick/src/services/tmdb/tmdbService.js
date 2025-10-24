@@ -1,6 +1,6 @@
 // tmdbService.js - Обновленный с поддержкой Jikan API для аниме
 
-import { fetchAnime } from "./jikanService.js";
+import { fetchAnime } from "../jikan/jikanService.js";
 
 const TMDB_KEY = import.meta.env.VITE_TMDB_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";

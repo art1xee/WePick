@@ -8,7 +8,7 @@ import Summary from "./screens/Summary.jsx";
 import Results from "./screens/Results.jsx";
 import Header from "./components/Header.jsx";
 // ИМПОРТ: Теперь здесь fetchContentForParticipantsUnified
-import { fetchContentForParticipantsUnified } from "./services/unifiedService.js";
+import { fetchContentForParticipantsUnified } from "./services/unifiend/unifiedService.js";
 
 const initialState = () => ({
   lang: "ua",

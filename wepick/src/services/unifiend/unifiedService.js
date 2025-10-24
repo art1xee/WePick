@@ -1,7 +1,7 @@
 // unifiedService.js - Единая точка входа для всех типов контента
 
-import { fetchMovies, fetchTVShows } from "./tmdbService.js";
-import { fetchAnime } from "./jikanService.js"; // <--- ИСПРАВЛЕНО имя импорта
+import { fetchMovies, fetchTVShows } from "../tmdb/tmdbService.js";
+import { fetchAnime } from "../jikan/jikanService.js"; // <--- ИСПРАВЛЕНО имя импорта
 
 function preferencesFromParticipants(participants) {
   return participants.flatMap((p) => p.likes || []);
