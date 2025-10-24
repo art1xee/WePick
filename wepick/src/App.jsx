@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LandingScreen from "./screens/Loading.jsx";
 import ContentType from "./screens/ContentType.jsx";
 import PartnerChoice from "./screens/PartnerChoice.jsx";
@@ -33,10 +33,41 @@ const initialState = () => ({
   characterName: null,
 });
 
-export default function App() {
-  const [state, setState] = useState(initialState());
+const LOCAL_STORAGE_KEY = "wepick_state";
 
-  const resetAll = () => setState(initialState());
+export default function App() {
+  const [state, setState] = useState(() => {
+    try {
+      const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        return { ...initialState, ...parsedState };
+      }
+    } catch (error) {
+      console.log("Error loading state from localStorage:", error);
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+
+    const hashStep = parseInt(window.location.hash.replace("#step=", ""), 10);
+    if (!isNaN(hashStep) && hashStep > 0) {
+      return { ...initialState(), step: hashStep };
+    }
+    return initialState();
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.error("Error saving state to local storage:", error);
+    }
+  }, [state]);
+
+  //const which allow to reload a page and save a current state
+  const resetAll = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    setState(initialState());
+  };
 
   const update = (patch) => setState((s) => ({ ...s, ...patch }));
 
@@ -60,15 +91,29 @@ export default function App() {
     });
   };
 
+  //const which allow to move among pages (prev and next page)
   React.useEffect(() => {
-    window.history.pushState({ step: state.step }, "", `#step=${state.step}`);
+    window.history.replaceState(
+      { step: state.step },
+      "",
+      `#step=${state.step}`
+    );
 
     const handlePopState = (event) => {
+      let targetStep = 1;
+
       if (event.state && event.state.step) {
-        goToStep(event.state.step);
+        targetStep = event.state.step;
       } else {
-        goToStep(1);
+        const hashStep = parseInt(
+          window.location.hash.replace("#step=", ""),
+          10
+        );
+        if (!isNaN(hashStep) && hashStep > 0) {
+          targetStep = hashStep;
+        }
       }
+      goToStep(targetStep);
     };
 
     window.addEventListener("popstate", handlePopState);

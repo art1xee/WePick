@@ -14,14 +14,13 @@ function genresToJikanIds(genresNames) {
 }
 
 /**
- * Получает аниме с Jikan API по жанрам (лайкам).
- * @param {Array<string>} likes - массив предпочтений (жанров).
- * @param {number} limit - максимальное количество результатов.
+ *
+ * @param {Array<string>} likes
+ * @param {number} limit
  */
 export async function fetchAnime(likes = [], limit = 20) {
   const genreIds = genresToJikanIds(likes);
 
-  // Строим строку запроса жанров
   const genreQuery = genreIds.length > 0 ? `&genres=${genreIds.join(",")}` : "";
 
   const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}`;
@@ -33,7 +32,6 @@ export async function fetchAnime(likes = [], limit = 20) {
     }
     const data = await response.json();
 
-    // Маппинг результатов Jikan в унифицированный формат
     return data.data.map((a) => ({
       id: a.mal_id,
       title: a.title_russian || a.title_english || a.title,
@@ -46,7 +44,6 @@ export async function fetchAnime(likes = [], limit = 20) {
     }));
   } catch (error) {
     console.error("Ошибка при загрузке аниме из Jikan API:", error);
-    // Добавим бросок ошибки для отладки
     throw error;
   }
 }
