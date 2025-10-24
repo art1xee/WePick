@@ -12,303 +12,310 @@ import { GENRES } from "./constants/genres.js";
 import { ADDITIONAL_GENRES } from "./constants/genres.js";
 
 const initialState = () => ({
-  lang: "ua",
-  step: 1,
-  contentType: null,
-  partnerType: null,
-  participants: [
-    {
-      name: null,
-      dislikes: [],
-      likes: [],
-      decade: 2000,
-      isCharacter: false,
-      content: null,
-    },
-  ],
-  chosenCharacter: null,
-  results: [],
-  loading: false, 
-  didWeakenFilters: false, 
-  characterName: null,    
-
+  lang: "ua",
+  step: 1,
+  contentType: null,
+  partnerType: null,
+  participants: [
+    {
+      name: null,
+      dislikes: [],
+      likes: [],
+      decade: 2000,
+      isCharacter: false,
+      content: null,
+    },
+  ],
+  chosenCharacter: null,
+  results: [],
+  loading: false,
+  didWeakenFilters: false,
+  characterName: null,
 });
 
 export default function App() {
-  const [state, setState] = useState(initialState());
+  const [state, setState] = useState(initialState());
 
-  const resetAll = () => setState(initialState());
+  const resetAll = () => setState(initialState());
 
-  const update = (patch) => setState((s) => ({ ...s, ...patch }));
+  const update = (patch) => setState((s) => ({ ...s, ...patch }));
 
-  const updateParticipant = (idx, patch) => {
-    setState((s) => {
-      const participants = [...s.participants];
-      participants[idx] = { ...participants[idx], ...patch };
-      return { ...s, participants };
-    });
-  };
+  const updateParticipant = (idx, patch) => {
+    setState((s) => {
+      const participants = [...s.participants];
+      participants[idx] = { ...participants[idx], ...patch };
+      return { ...s, participants };
+    });
+  };
 
-  const nextStep = () => setState((s) => ({ ...s, step: s.step + 1 }));
-  const goToStep = (step) => setState((s) => ({ ...s, step }));
+  const nextStep = () => setState((s) => ({ ...s, step: s.step + 1 }));
+  const goToStep = (step) => setState((s) => ({ ...s, step }));
 
-  const prevStep = () => {
-    setState((s) => {
-      if (s.step > 1) {
-        return { ...s, step: s.step - 1 };
-      }
-      return s;
-    });
-  };
+  const prevStep = () => {
+    setState((s) => {
+      if (s.step > 1) {
+        return { ...s, step: s.step - 1 };
+      }
+      return s;
+    });
+  };
 
-  React.useEffect(() => {
-    window.history.pushState({ step: state.step }, "", `#step=${state.step}`);
+  React.useEffect(() => {
+    window.history.pushState({ step: state.step }, "", `#step=${state.step}`);
 
-    const handlePopState = (event) => {
-      if (event.state && event.state.step) {
-        goToStep(event.state.step);
-      } else {
-        goToStep(1);
-      }
-    };
+    const handlePopState = (event) => {
+      if (event.state && event.state.step) {
+        goToStep(event.state.step);
+      } else {
+        goToStep(1);
+      }
+    };
 
-    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("popstate", handlePopState);
 
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [state.step]);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [state.step]);
 
-  const ensureSecondParticipant = () => {
-    setState((s) => {
-      if (s.participants.length < 2) {
-        return {
-          ...s,
-          participants: [
-            ...s.participants,
-            {
-              name: null,
-              dislikes: [],
-              likes: [],
-              decade: 2000,
-              isCharacter: false,
-              content: null,
-            },
-          ],
-        };
-      }
-      return s;
-    });
-  };
+  const ensureSecondParticipant = () => {
+    setState((s) => {
+      if (s.participants.length < 2) {
+        return {
+          ...s,
+          participants: [
+            ...s.participants,
+            {
+              name: null,
+              dislikes: [],
+              likes: [],
+              decade: 2000,
+              isCharacter: false,
+              content: null,
+            },
+          ],
+        };
+      }
+      return s;
+    });
+  };
 
-  const createCharacterParticipant = (char) => {
-    const currentLang = state.lang;
-    const allGenres = [...GENRES[currentLang], ...ADDITIONAL_GENRES[currentLang]];
+  const createCharacterParticipant = (char) => {
+    const currentLang = state.lang;
+    const allGenres = [
+      ...GENRES[currentLang],
+      ...ADDITIONAL_GENRES[currentLang],
+    ];
 
-    const sample = (arr, n) => {
-      const a = [...arr];
-      const out = [];
-      const len = Math.min(n, a.length);
-      while (out.length < len) {
-        const i = Math.floor(Math.random() * a.length);
-        out.push(a.splice(i, 1)[0]);
-      }
-      return out;
-    };
+    const sample = (arr, n) => {
+      const a = [...arr];
+      const out = [];
+      const len = Math.min(n, a.length);
+      while (out.length < len) {
+        const i = Math.floor(Math.random() * a.length);
+        out.push(a.splice(i, 1)[0]);
+      }
+      return out;
+    };
 
-    const dislikes = sample(allGenres, 3);
-    const likes = sample(allGenres, 3);
-    const decadeOptions = [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
-    const decade = decadeOptions[Math.floor(Math.random() * decadeOptions.length)];
+    const dislikes = sample(allGenres, 3);
+    const likes = sample(allGenres, 3);
+    const decadeOptions = [
+      1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
+    ];
+    const decade =
+      decadeOptions[Math.floor(Math.random() * decadeOptions.length)];
 
-    setState((s) => {
-      const participants = [...s.participants];
-      if (participants.length < 2) {
-        participants.push({});
-      }
-      participants[1] = {
-        name: char.name,
-        dislikes,
-        likes,
-        decade,
-        isCharacter: true,
-        content: participants[0].content,
-      };
-      return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
-    });
-  };
+    setState((s) => {
+      const participants = [...s.participants];
+      if (participants.length < 2) {
+        participants.push({});
+      }
+      participants[1] = {
+        name: char.name,
+        dislikes,
+        likes,
+        decade,
+        isCharacter: true,
+        content: participants[0].content,
+      };
+      return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
+    });
+  };
 
-  const updateCharacterGenres = (newLang) => {
-    setState((s) => {
-      if (s.participants.length > 1 && s.participants[1].isCharacter) {
-        const allGenres = [...GENRES[newLang], ...ADDITIONAL_GENRES[newLang]];
-        
-        const sample = (arr, n) => {
-          const a = [...arr];
-          const out = [];
-          const len = Math.min(n, a.length);
-          while (out.length < len) {
-            const i = Math.floor(Math.random() * a.length);
-            out.push(a.splice(i, 1)[0]);
-          }
-          return out;
-        };
+  const updateCharacterGenres = (newLang) => {
+    setState((s) => {
+      if (s.participants.length > 1 && s.participants[1].isCharacter) {
+        const allGenres = [...GENRES[newLang], ...ADDITIONAL_GENRES[newLang]];
+        const sample = (arr, n) => {
+          const a = [...arr];
+          const out = [];
+          const len = Math.min(n, a.length);
+          while (out.length < len) {
+            const i = Math.floor(Math.random() * a.length);
+            out.push(a.splice(i, 1)[0]);
+          }
+          return out;
+        };
 
-        const participants = [...s.participants];
-        participants[1] = {
-          ...participants[1],
-          dislikes: sample(allGenres, 3),
-          likes: sample(allGenres, 3)
-        };
+        const participants = [...s.participants];
+        participants[1] = {
+          ...participants[1],
+          dislikes: sample(allGenres, 3),
+          likes: sample(allGenres, 3),
+        };
 
-        return { ...s, participants };
-      }
-      return s;
-    });
-  };
+        return { ...s, participants };
+      }
+      return s;
+    });
+  };
 
-  const setLang = (lang) => {
-    setState((s) => ({ ...s, lang }));
-    setTimeout(() => updateCharacterGenres(lang), 0);
-  };
+  const setLang = (lang) => {
+    setState((s) => ({ ...s, lang }));
+    setTimeout(() => updateCharacterGenres(lang), 0);
+  }; // НОВАЯ ФУНКЦИЯ: Загрузка контента через API
 
-  // НОВАЯ ФУНКЦИЯ: Загрузка контента через API
-  const onFind = async () => {
-    setState((s) => ({ ...s, loading: true }));
+  const onFind = async () => {
+    setState((s) => ({ ...s, loading: true }));
 
-    try {
-        // Преобразуем язык в формат TMDb
-        const tmdbLanguage = state.lang === 'ua' ? 'uk-UA' :
-            state.lang === 'ru' ? 'ru-RU' : 'en-US';
+    try {
+      // Преобразуем язык в формат TMDb
+      const tmdbLanguage =
+        state.lang === "ua" ? "uk-UA" : state.lang === "ru" ? "ru-RU" : "en-US"; // ИСПРАВЛЕНИЕ: Вызываем fetchContentForParticipantsUnified
 
-        // ИСПРАВЛЕНИЕ: Вызываем fetchContentForParticipantsUnified
-        const { results, didWeakenFilters, characterName } = await fetchContentForParticipantsUnified(
-            state.participants,
-            state.contentType,
-            tmdbLanguage
-        );
+      const { results, didWeakenFilters, characterName } =
+        await fetchContentForParticipantsUnified(
+          state.participants,
+          state.contentType,
+          tmdbLanguage
+        );
 
-        setState((s) => ({
-            ...s,
-            results,
-            loading: false,
-            step: 8,
-            didWeakenFilters, // <-- ОБНОВЛЕНИЕ СОСТОЯНИЯ
-            characterName     // <-- ОБНОВЛЕНИЕ СОСТОЯНИЯ
-        }));
-    } catch (error) {
-        console.error('Ошибка при загрузке контента:', error);
-        setState((s) => ({ ...s, loading: false }));
-    }
-};
+      setState((s) => ({
+        ...s,
+        results,
+        loading: false,
+        step: 8,
+        didWeakenFilters,
+        characterName,
+      }));
+    } catch (error) {
+      console.error("Ошибка при загрузке контента:", error);
+      setState((s) => ({ ...s, loading: false }));
+    }
+  };
 
-  return (
-    <div className="app">
-      <Header lang={state.lang} setLang={setLang} resetAll={resetAll} />
-      <div className="container">
-        {state.step === 1 && (
-          <LandingScreen
-            lang={state.lang}
-            onNext={(name) => {
-              updateParticipant(0, { name });
-              nextStep();
-            }}
-          />
-        )}
-
-        {state.step === 2 && (
-          <ContentType
-            lang={state.lang}
-            userName={state.participants[0].name}
-            value={state.contentType}
-            onSelect={(selectedOption) => {
-              update({ contentType: selectedOption.key });
-              updateParticipant(0, { content: selectedOption.label });
-            }}
-            onNext={() => nextStep()}
-          />
-        )}
-
-        {state.step === 3 && (
-          <PartnerChoice
-            lang={state.lang}
-            contentType={state.participants[0].content}
-            value={state.partnerType}
-            onSelect={(selectedOption) =>
-              update({ partnerType: selectedOption.key })
-            }
-            onNext={() => {
-              if (state.partnerType === "friend") {
-                ensureSecondParticipant();
-              }
-              nextStep();
-            }}
-          />
-        )}
-
-        {state.step === 4 && (
-          <CharacterGridOrFriend
-            lang={state.lang}
-            partnerType={state.partnerType}
-            onCharacter={(char) => createCharacterParticipant(char)}
-            onFriendName={(name) => {
-              updateParticipant(1, {
-                name,
-                content: state.participants[0].content,
-              });
-              nextStep();
-            }}
-          />
-        )}
-
-        {state.step === 5 && (
-          <PreferencesFlow
-            lang={state.lang}
-            participant={state.participants[0]}
-            userName={state.participants[0].name}
-            onSave={(data) => {
-              updateParticipant(0, data);
-              nextStep();
-            }}
-          />
-        )}
-
-        {state.step === 6 && state.partnerType === "friend" && (
-          <PreferencesFlow
-            lang={state.lang}
-            participant={state.participants[1]}
-            userName={state.participants[1].name}
-            onSave={(data) => {
-              updateParticipant(1, data);
-              nextStep();
-            }}
-          />
-        )}
-
-        {(state.step === 7 ||
-          (state.step === 6 && state.partnerType === "popular-character")) && (
-          <Summary
-            participants={state.participants}
-            contentType={state.contentType}
-            onFind={onFind}
-            lang={state.lang}
-            loading={state.loading}
-          />
-        )}
-
-       {state.step === 8 && (
-    <Results
-        movies={state.results}
-        onRestart={resetAll}
-        lang={state.lang}
-        loading={state.loading}
-        didWeakenFilters={state.didWeakenFilters} 
-        characterName={state.characterName}      
-        participants={state.participants}
-        contentType={state.contentType}
-    />
-)}
-      </div>
-    </div>
-  );
+  return (
+    <div className="app">
+            <Header lang={state.lang} setLang={setLang} resetAll={resetAll} /> 
+         {" "}
+      <div className="container">
+               {" "}
+        {state.step === 1 && (
+          <LandingScreen
+            lang={state.lang}
+            onNext={(name) => {
+              updateParticipant(0, { name });
+              nextStep();
+            }}
+          />
+        )}
+               {" "}
+        {state.step === 2 && (
+          <ContentType
+            lang={state.lang}
+            userName={state.participants[0].name}
+            value={state.contentType}
+            onSelect={(selectedOption) => {
+              update({ contentType: selectedOption.key });
+              updateParticipant(0, { content: selectedOption.label });
+            }}
+            onNext={() => nextStep()}
+          />
+        )}
+               {" "}
+        {state.step === 3 && (
+          <PartnerChoice
+            lang={state.lang}
+            contentType={state.participants[0].content}
+            value={state.partnerType}
+            onSelect={(selectedOption) =>
+              update({ partnerType: selectedOption.key })
+            }
+            onNext={() => {
+              if (state.partnerType === "friend") {
+                ensureSecondParticipant();
+              }
+              nextStep();
+            }}
+          />
+        )}
+               {" "}
+        {state.step === 4 && (
+          <CharacterGridOrFriend
+            lang={state.lang}
+            partnerType={state.partnerType}
+            onCharacter={(char) => createCharacterParticipant(char)}
+            onFriendName={(name) => {
+              updateParticipant(1, {
+                name,
+                content: state.participants[0].content,
+              });
+              nextStep();
+            }}
+          />
+        )}
+               {" "}
+        {state.step === 5 && (
+          <PreferencesFlow
+            lang={state.lang}
+            participant={state.participants[0]}
+            userName={state.participants[0].name}
+            onSave={(data) => {
+              updateParticipant(0, data);
+              nextStep();
+            }}
+          />
+        )}
+               {" "}
+        {state.step === 6 && state.partnerType === "friend" && (
+          <PreferencesFlow
+            lang={state.lang}
+            participant={state.participants[1]}
+            userName={state.participants[1].name}
+            onSave={(data) => {
+              updateParticipant(1, data);
+              nextStep();
+            }}
+          />
+        )}
+               {" "}
+        {(state.step === 7 ||
+          (state.step === 6 && state.partnerType === "popular-character")) && (
+          <Summary
+            participants={state.participants}
+            contentType={state.contentType}
+            onFind={onFind}
+            lang={state.lang}
+            loading={state.loading}
+          />
+        )}
+               
+        {state.step === 8 && (
+          <Results
+            movies={state.results}
+            onRestart={resetAll}
+            lang={state.lang}
+            loading={state.loading}
+            didWeakenFilters={state.didWeakenFilters}
+            characterName={state.characterName}
+            participants={state.participants}
+            contentType={state.contentType}
+          />
+        )}
+             {" "}
+      </div>
+         {" "}
+    </div>
+  );
 }

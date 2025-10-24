@@ -1,16 +1,11 @@
-// jikanService.js - Сервис для работы с Jikan API (MyAnimeList)
 import { JIKAN_GENRE_MAPPING } from "../../constants/genres.js";
 
 const JIKAN_BASE_URL = "https://api.jikan.moe/v4";
 
-// Маппинг жанров на Jikan API genre IDs
-
 /**
- * Преобразует массив строк (лайков/жанров) в массив Jikan ID.
  * @param {Array<string>} genresNames - массив строк, представляющих жанры (лайки).
  */
 function genresToJikanIds(genresNames) {
-  // 🔥 ИСПРАВЛЕНИЕ ОШИБКИ: Гарантируем, что genresNames является массивом
   const validGenres = Array.isArray(genresNames) ? genresNames : [];
 
   return validGenres
