@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import LandingScreen from "./screens/Loading.jsx";
 import ContentType from "./screens/ContentType.jsx";
 import PartnerChoice from "./screens/PartnerChoice.jsx";
@@ -7,242 +7,44 @@ import PreferencesFlow from "./screens/PreferencesFlow.jsx";
 import Summary from "./screens/Summary.jsx";
 import Results from "./screens/Results.jsx";
 import Header from "./components/Header.jsx";
-import { fetchContentForParticipantsUnified } from "./services/unifiend/unifiedService.js";
-import { GENRES } from "./constants/genres.js";
-import { ADDITIONAL_GENRES } from "./constants/genres.js";
-
-const initialState = () => ({
-  lang: "ua",
-  step: 1,
-  contentType: null,
-  partnerType: null,
-  participants: [
-    {
-      name: null,
-      dislikes: [],
-      likes: [],
-      decade: 2000,
-      isCharacter: false,
-      content: null,
-    },
-  ],
-  chosenCharacter: null,
-  results: [],
-  loading: false,
-  didWeakenFilters: false,
-  characterName: null,
-});
-
-const LOCAL_STORAGE_KEY = "wepick_state";
+import { useAppState } from "./hooks/useAppState.js";
 
 export default function App() {
-  const [state, setState] = useState(() => {
-    try {
-      const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (savedState) {
-        const parsedState = JSON.parse(savedState);
-        return { ...initialState, ...parsedState };
-      }
-    } catch (error) {
-      console.log("Error loading state from localStorage:", error);
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-    }
-
-    const hashStep = parseInt(window.location.hash.replace("#step=", ""), 10);
-    if (!isNaN(hashStep) && hashStep > 0) {
-      return { ...initialState(), step: hashStep };
-    }
-    return initialState();
-  });
+  const {
+    state,
+    resetAll,
+    update,
+    updateParticipant,
+    nextStep,
+    prevStep,
+    forwardStep,
+    ensureSecondParticipant,
+    createCharacterParticipant,
+    setLang,
+    onFind,
+  } = useAppState();
 
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-    } catch (error) {
-      console.error("Error saving state to local storage:", error);
-    }
-  }, [state]);
-
-  //const which allow to reload a page and save a current state
-  const resetAll = () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-    setState(initialState());
-  };
-
-  const update = (patch) => setState((s) => ({ ...s, ...patch }));
-
-  const updateParticipant = (idx, patch) => {
-    setState((s) => {
-      const participants = [...s.participants];
-      participants[idx] = { ...participants[idx], ...patch };
-      return { ...s, participants };
-    });
-  };
-
-  const nextStep = () => setState((s) => ({ ...s, step: s.step + 1 }));
-  const goToStep = (step) => setState((s) => ({ ...s, step }));
-
-  const prevStep = () => {
-    setState((s) => {
-      if (s.step > 1) {
-        return { ...s, step: s.step - 1 };
-      }
-      return s;
-    });
-  };
-
-  useEffect(() => {
-    const handlePopState = (event) => {
-      const step = parseInt(window.location.hash.replace("#step=", ""), 10);
-      if (!isNaN(step)) {
-        setState((s) => ({ ...s, step }));
+    const handleKeyDown = (event) => {
+      console.log("Key pressed:", event.key);
+      if (event.key === "ArrowLeft") {
+        prevStep();
+      } else if (event.key === "ArrowRight") {
+        forwardStep();
       }
     };
 
-    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
-
-  useEffect(() => {
-    window.history.pushState({ step: state.step }, "", `#step=${state.step}`);
-  }, [state.step]);
-
-  const ensureSecondParticipant = () => {
-    setState((s) => {
-      if (s.participants.length < 2) {
-        return {
-          ...s,
-          participants: [
-            ...s.participants,
-            {
-              name: null,
-              dislikes: [],
-              likes: [],
-              decade: 2000,
-              isCharacter: false,
-              content: null,
-            },
-          ],
-        };
-      }
-      return s;
-    });
-  };
-
-  const createCharacterParticipant = (char) => {
-    const currentLang = state.lang;
-    const allGenres = [
-      ...GENRES[currentLang],
-      ...ADDITIONAL_GENRES[currentLang],
-    ];
-
-    const sample = (arr, n) => {
-      const a = [...arr];
-      const out = [];
-      const len = Math.min(n, a.length);
-      while (out.length < len) {
-        const i = Math.floor(Math.random() * a.length);
-        out.push(a.splice(i, 1)[0]);
-      }
-      return out;
-    };
-
-    const dislikes = sample(allGenres, 3);
-    const likes = sample(allGenres, 3);
-    const decadeOptions = [
-      1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
-    ];
-    const decade =
-      decadeOptions[Math.floor(Math.random() * decadeOptions.length)];
-
-    setState((s) => {
-      const participants = [...s.participants];
-      if (participants.length < 2) {
-        participants.push({});
-      }
-      participants[1] = {
-        name: char.name,
-        dislikes,
-        likes,
-        decade,
-        isCharacter: true,
-        content: participants[0].content,
-      };
-      return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
-    });
-  };
-
-  const updateCharacterGenres = (newLang) => {
-    setState((s) => {
-      if (s.participants.length > 1 && s.participants[1].isCharacter) {
-        const allGenres = [...GENRES[newLang], ...ADDITIONAL_GENRES[newLang]];
-        const sample = (arr, n) => {
-          const a = [...arr];
-          const out = [];
-          const len = Math.min(n, a.length);
-          while (out.length < len) {
-            const i = Math.floor(Math.random() * a.length);
-            out.push(a.splice(i, 1)[0]);
-          }
-          return out;
-        };
-
-        const participants = [...s.participants];
-        participants[1] = {
-          ...participants[1],
-          dislikes: sample(allGenres, 3),
-          likes: sample(allGenres, 3),
-        };
-
-        return { ...s, participants };
-      }
-      return s;
-    });
-  };
-
-  const setLang = (lang) => {
-    setState((s) => ({ ...s, lang }));
-    setTimeout(() => updateCharacterGenres(lang), 0);
-  }; // НОВАЯ ФУНКЦИЯ: Загрузка контента через API
-
-  const onFind = async () => {
-    setState((s) => ({ ...s, loading: true }));
-
-    try {
-      // Преобразуем язык в формат TMDb
-      const tmdbLanguage =
-        state.lang === "ua" ? "uk-UA" : state.lang === "ru" ? "ru-RU" : "en-US"; // ИСПРАВЛЕНИЕ: Вызываем fetchContentForParticipantsUnified
-
-      const { results, didWeakenFilters, characterName } =
-        await fetchContentForParticipantsUnified(
-          state.participants,
-          state.contentType,
-          tmdbLanguage
-        );
-
-      setState((s) => ({
-        ...s,
-        results,
-        loading: false,
-        step: 8,
-        didWeakenFilters,
-        characterName,
-      }));
-    } catch (error) {
-      console.error("Ошибка при загрузке контента:", error);
-      setState((s) => ({ ...s, loading: false }));
-    }
-  };
+  }, [prevStep, forwardStep]);
 
   return (
     <div className="app">
-            <Header lang={state.lang} setLang={setLang} resetAll={resetAll} /> 
-         {" "}
+          <Header lang={state.lang} setLang={setLang} resetAll={resetAll} /> 
       <div className="container">
-               {" "}
         {state.step === 1 && (
           <LandingScreen
             lang={state.lang}
@@ -252,7 +54,6 @@ export default function App() {
             }}
           />
         )}
-               {" "}
         {state.step === 2 && (
           <ContentType
             lang={state.lang}
@@ -265,7 +66,6 @@ export default function App() {
             onNext={() => nextStep()}
           />
         )}
-               {" "}
         {state.step === 3 && (
           <PartnerChoice
             lang={state.lang}
@@ -282,7 +82,6 @@ export default function App() {
             }}
           />
         )}
-               {" "}
         {state.step === 4 && (
           <CharacterGridOrFriend
             lang={state.lang}
@@ -297,7 +96,6 @@ export default function App() {
             }}
           />
         )}
-               {" "}
         {state.step === 5 && (
           <PreferencesFlow
             lang={state.lang}
@@ -309,7 +107,6 @@ export default function App() {
             }}
           />
         )}
-               {" "}
         {state.step === 6 && state.partnerType === "friend" && (
           <PreferencesFlow
             lang={state.lang}
@@ -321,7 +118,6 @@ export default function App() {
             }}
           />
         )}
-               {" "}
         {(state.step === 7 ||
           (state.step === 6 && state.partnerType === "popular-character")) && (
           <Summary
@@ -345,9 +141,7 @@ export default function App() {
             contentType={state.contentType}
           />
         )}
-             {" "}
       </div>
-         {" "}
     </div>
   );
 }
