@@ -91,29 +91,12 @@ export default function App() {
     });
   };
 
-  //const which allow to move among pages (prev and next page)
-  React.useEffect(() => {
-    window.history.replaceState(
-      { step: state.step },
-      "",
-      `#step=${state.step}`
-    );
-
+  useEffect(() => {
     const handlePopState = (event) => {
-      let targetStep = 1;
-
-      if (event.state && event.state.step) {
-        targetStep = event.state.step;
-      } else {
-        const hashStep = parseInt(
-          window.location.hash.replace("#step=", ""),
-          10
-        );
-        if (!isNaN(hashStep) && hashStep > 0) {
-          targetStep = hashStep;
-        }
+      const step = parseInt(window.location.hash.replace("#step=", ""), 10);
+      if (!isNaN(step)) {
+        setState((s) => ({ ...s, step }));
       }
-      goToStep(targetStep);
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -121,6 +104,10 @@ export default function App() {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
+  }, []);
+
+  useEffect(() => {
+    window.history.pushState({ step: state.step }, "", `#step=${state.step}`);
   }, [state.step]);
 
   const ensureSecondParticipant = () => {
