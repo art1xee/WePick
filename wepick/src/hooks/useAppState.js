@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; // Corrected import: removed setState from direct import
 import { GENRES, ADDITIONAL_GENRES } from "../constants/genres";
 import { fetchContentForParticipantsUnified } from "../services/unifiend/unifiedService";
 
@@ -33,13 +33,15 @@ export const useAppState = () => {
       const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (savedState) {
         const parsedState = JSON.parse(savedState);
+        // Merge saved state with initial state to ensure all keys are present
         return { ...initialState(), ...parsedState };
       }
     } catch (error) {
       console.log("Error loading state from localStorage:", error);
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(LOCAL_STORAGE_KEY); // Clear corrupted state
     }
 
+    // Handle initial load from URL hash for step
     const hashStep = parseInt(window.location.hash.replace("#step=", ""), 10);
     if (!isNaN(hashStep) && hashStep > 0) {
       return { ...initialState(), step: hashStep };
@@ -47,34 +49,38 @@ export const useAppState = () => {
     return initialState();
   });
 
+  // Resets all state and clears local storage
   const resetAll = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEY);
     setState(initialState());
   };
 
+  // Clears only the user's preferences and results-related state
   const clearUserPreferences = () => {
     setState((s) => {
-      const updateParticipant = s.participants.map((p) => {
+      const updatedParticipants = s.participants.map((p) => {
         if (!p.isCharacter) {
+          // Assuming the user is the participant who is not a character
           return {
             ...p,
             dislikes: [],
             likes: [],
-            decade: 2000,
+            decade: 2000, // Reset to default decade
           };
         }
         return p;
       });
       return {
         ...s,
-        participants: updateParticipant,
-        results: [],
-        didWeakenFilters: false,
-        characterName: null,
+        participants: updatedParticipants,
+        results: [], // Clear results
+        didWeakenFilters: false, // Clear weakened filters flag
+        characterName: null, // Clear character name from results context
       };
     });
   };
 
+  // Effect to save state to localStorage whenever it changes
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
@@ -83,6 +89,7 @@ export const useAppState = () => {
     }
   }, [state]);
 
+  // Effect to handle browser's back/forward buttons (popstate event)
   useEffect(() => {
     const handlePopState = (event) => {
       if (event.state && event.state.step) {
@@ -107,6 +114,7 @@ export const useAppState = () => {
     };
   }, []);
 
+  // Effect to update URL hash when step changes
   useEffect(() => {
     const currentPath = `#step=${state.step}`;
     if (window.location.hash !== currentPath) {
@@ -114,8 +122,10 @@ export const useAppState = () => {
     }
   }, [state.step]);
 
+  // Generic state update function
   const update = (patch) => setState((s) => ({ ...s, ...patch }));
 
+  // Updates a specific participant's data
   const updateParticipant = (idx, patch) => {
     setState((s) => {
       const participants = [...s.participants];
@@ -124,6 +134,7 @@ export const useAppState = () => {
     });
   };
 
+  // Navigates to the next step
   const nextStep = () =>
     setState((s) => {
       const newStep = s.step + 1;
@@ -137,61 +148,55 @@ export const useAppState = () => {
       };
     });
 
-  // const prevStep = () => {
-  //   setState((s) => {
-  //     if (s.currentStepIndex > 0) {
-  //       const newStepIndex = s.currentStepIndex - 1;
-  //       const newStep = s.stepHistory[newStepIndex];
-  //       if (s.step === 8) {
-  //         const updateParticipant = s.participants.map((p) => {
-  //           if (!p.isCharacter) {
-  //             return {
-  //               ...p,
-  //               dislikes: [],
-  //               likes: [],
-  //               decade: 2000,
-  //             };
-  //           }
-  //           return p;
-  //         });
-  //         return {
-  //           ...s,
-  //           step: newStep,
-  //           currentStepIndex: newStepIndex,
-  //           participants: updateParticipant,
-  //           results: [],
-  //           didWeakenFilters: false,
-  //           characterName: null,
-  //         };
-  //       }
-  //       return {
-  //         ...s,
-  //         step: newStep,
-  //         currentStepIndex: newStepIndex,
-  //       };
-  //     } else {
-  //       alert("You can`t go back from the main screen!");
-  //     }
-  //     return s;
-  //   });
-  // };
-
   const prevStep = () => {
     setState((s) => {
       if (s.currentStepIndex > 0) {
         const newStepIndex = s.currentStepIndex - 1;
+        const newStep = s.stepHistory[newStepIndex];
+
+        // Determine if preferences should be cleared
+        // Clear if navigating back from results (step 8) OR if navigating back to the very first step (step 1)
+        const shouldClearPreferences = s.step === 8 || newStep === 1;
+
+        if (shouldClearPreferences) {
+          const updatedParticipants = s.participants.map((p) => {
+            if (!p.isCharacter) {
+              // Assuming the user is the participant who is not a character
+              return {
+                ...p,
+                dislikes: [],
+                likes: [],
+                decade: 2000, // Reset to default decade
+              };
+            }
+            return p;
+          });
+
+          return {
+            ...s,
+            step: newStep,
+            currentStepIndex: newStepIndex,
+            participants: updatedParticipants, // Apply cleared preferences
+            results: [], // Clear results
+            didWeakenFilters: false, // Clear weakened filters flag
+            characterName: null, // Clear character name from results context
+          };
+        }
+
+        // For other backward navigations, just go back normally without clearing preferences
         return {
           ...s,
-          step: s.stepHistory[newStepIndex],
+          step: newStep,
           currentStepIndex: newStepIndex,
         };
       } else {
-        alert("you can`t go back from the main screen!");
+        alert("You can't go back from the main screen");
       }
       return s;
     });
   };
 
+  // Navigates forward in history if possible
   const forwardStep = () => {
     setState((s) => {
       if (s.step === 8) {
@@ -210,6 +215,7 @@ export const useAppState = () => {
     });
   };
 
+  // Navigates to a specific step, adding to history if needed
   const goToStep = (step) => {
     setState((s) => {
       const newHistory = s.stepHistory.slice(0, s.currentStepIndex + 1);
@@ -225,9 +231,11 @@ export const useAppState = () => {
     });
   };
 
-  const goBackFromResultAndClear = (targetStep) => {
+  // Navigates back from results screen and clears user preferences
+  const goBackFromResultsAndClear = (targetStep) => {
     setState((s) => {
-      const updateParticipant = s.participants.map((p) => {
+      // Reset user's preferences and results-related state
+      const updatedParticipants = s.participants.map((p) => {
         if (!p.isCharacter) {
           return {
             ...p,
@@ -238,9 +246,31 @@ export const useAppState = () => {
         }
         return p;
       });
+
+      // Navigate to the target step, ensuring history is handled
+      const newHistory = s.stepHistory.slice(0, s.currentStepIndex + 1);
+      let newStepIndex = newHistory.lastIndexOf(targetStep);
+      if (newStepIndex === -1) {
+        // If targetStep is not in current history, add it
+        newHistory.push(targetStep);
+        newStepIndex = newHistory.length - 1;
+      }
+
+      return {
+        // Corrected return statement for setState
+        ...s,
+        step: targetStep,
+        stepHistory: newHistory,
+        currentStepIndex: newStepIndex,
+        participants: updatedParticipants, // Apply cleared preferences
+        results: [], // Clear results
+        didWeakenFilters: false,
+        characterName: null,
+      };
     });
   };
 
+  // Ensures a second participant slot exists
   const ensureSecondParticipant = () => {
     setState((s) => {
       if (s.participants.length < 2) {
@@ -263,6 +293,7 @@ export const useAppState = () => {
     });
   };
 
+  // Creates a character participant with random preferences
   const createCharacterParticipant = (char) => {
     const currentLang = state.lang;
     const allGenres = [
@@ -292,7 +323,7 @@ export const useAppState = () => {
     setState((s) => {
       const participants = [...s.participants];
       if (participants.length < 2) {
-        participants.push({});
+        participants.push({}); // Ensure there's a slot for the character
       }
       participants[1] = {
         name: char.name,
@@ -300,12 +331,13 @@ export const useAppState = () => {
         likes,
         decade,
         isCharacter: true,
-        content: participants[0].content,
+        content: participants[0].content, // Character's content might depend on user's
       };
       return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
     });
   };
 
+  // Updates character genres based on new language
   const updateCharacterGenres = (newLang) => {
     setState((s) => {
       if (s.participants.length > 1 && s.participants[1].isCharacter) {
@@ -333,11 +365,13 @@ export const useAppState = () => {
     });
   };
 
+  // Sets the application language
   const setLang = (lang) => {
     setState((s) => ({ ...s, lang }));
-    setTimeout(() => updateCharacterGenres(lang), 0);
+    setTimeout(() => updateCharacterGenres(lang), 0); // Update character genres after language change
   };
 
+  // Initiates content search and navigates to results
   const onFind = async () => {
     setState((s) => ({ ...s, loading: true }));
 
@@ -354,7 +388,7 @@ export const useAppState = () => {
         ...s,
         results,
         loading: false,
-        step: 8,
+        step: 8, // Navigate to results screen
         didWeakenFilters,
         characterName,
       }));
@@ -364,6 +398,7 @@ export const useAppState = () => {
     }
   };
 
+  // Reloads content results without changing the step
   const reloadResults = async () => {
     setState((s) => ({ ...s, loading: true, results: [] }));
 
@@ -389,6 +424,7 @@ export const useAppState = () => {
     }
   };
 
+  // Expose state and functions
   return {
     state,
     resetAll,
@@ -403,6 +439,6 @@ export const useAppState = () => {
     setLang,
     onFind,
     reloadResults,
-    goBackFromResultAndClear,
+    goBackFromResultsAndClear,
   };
 };
