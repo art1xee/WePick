@@ -47,6 +47,34 @@ export const useAppState = () => {
     return initialState();
   });
 
+  const resetAll = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    setState(initialState());
+  };
+
+  const clearUserPreferences = () => {
+    setState((s) => {
+      const updateParticipant = s.participants.map((p) => {
+        if (!p.isCharacter) {
+          return {
+            ...p,
+            dislikes: [],
+            likes: [],
+            decade: 2000,
+          };
+        }
+        return p;
+      });
+      return {
+        ...s,
+        participants: updateParticipant,
+        results: [],
+        didWeakenFilters: false,
+        characterName: null,
+      };
+    });
+  };
+
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
@@ -86,11 +114,6 @@ export const useAppState = () => {
     }
   }, [state.step]);
 
-  const resetAll = () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-    setState(initialState());
-  };
-
   const update = (patch) => setState((s) => ({ ...s, ...patch }));
 
   const updateParticipant = (idx, patch) => {
@@ -114,6 +137,45 @@ export const useAppState = () => {
       };
     });
 
+  // const prevStep = () => {
+  //   setState((s) => {
+  //     if (s.currentStepIndex > 0) {
+  //       const newStepIndex = s.currentStepIndex - 1;
+  //       const newStep = s.stepHistory[newStepIndex];
+  //       if (s.step === 8) {
+  //         const updateParticipant = s.participants.map((p) => {
+  //           if (!p.isCharacter) {
+  //             return {
+  //               ...p,
+  //               dislikes: [],
+  //               likes: [],
+  //               decade: 2000,
+  //             };
+  //           }
+  //           return p;
+  //         });
+  //         return {
+  //           ...s,
+  //           step: newStep,
+  //           currentStepIndex: newStepIndex,
+  //           participants: updateParticipant,
+  //           results: [],
+  //           didWeakenFilters: false,
+  //           characterName: null,
+  //         };
+  //       }
+  //       return {
+  //         ...s,
+  //         step: newStep,
+  //         currentStepIndex: newStepIndex,
+  //       };
+  //     } else {
+  //       alert("You can`t go back from the main screen!");
+  //     }
+  //     return s;
+  //   });
+  // };
+
   const prevStep = () => {
     setState((s) => {
       if (s.currentStepIndex > 0) {
@@ -124,7 +186,7 @@ export const useAppState = () => {
           currentStepIndex: newStepIndex,
         };
       } else {
-        alert("You can't go back from the main screen");
+        alert("you can`t go back from the main screen!");
       }
       return s;
     });
@@ -160,6 +222,22 @@ export const useAppState = () => {
         stepHistory: newHistory,
         currentStepIndex: newHistory.length - 1,
       };
+    });
+  };
+
+  const goBackFromResultAndClear = (targetStep) => {
+    setState((s) => {
+      const updateParticipant = s.participants.map((p) => {
+        if (!p.isCharacter) {
+          return {
+            ...p,
+            dislikes: [],
+            likes: [],
+            decade: 2000,
+          };
+        }
+        return p;
+      });
     });
   };
 
@@ -286,6 +364,31 @@ export const useAppState = () => {
     }
   };
 
+  const reloadResults = async () => {
+    setState((s) => ({ ...s, loading: true, results: [] }));
+
+    try {
+      const tmdbLanguage =
+        state.lang === "ua" ? "uk-UA" : state.lang === "ru" ? "ru-RU" : "en-US";
+      const { results, didWeakenFilters, characterName } =
+        await fetchContentForParticipantsUnified(
+          state.participants,
+          state.contentType,
+          tmdbLanguage
+        );
+      setState((s) => ({
+        ...s,
+        results,
+        loading: false,
+        didWeakenFilters,
+        characterName,
+      }));
+    } catch (error) {
+      console.error("Ошибка при перезагрузке контента:", error);
+      setState((s) => ({ ...s, loading: false }));
+    }
+  };
+
   return {
     state,
     resetAll,
@@ -299,5 +402,7 @@ export const useAppState = () => {
     createCharacterParticipant,
     setLang,
     onFind,
+    reloadResults,
+    goBackFromResultAndClear,
   };
 };

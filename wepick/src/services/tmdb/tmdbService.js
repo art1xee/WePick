@@ -65,7 +65,6 @@ export const fetchMovies = async (
   }
 };
 
-// Получить сериалы
 export const fetchTVShows = async (
   likes,
   dislikes,
@@ -212,4 +211,5 @@ export default {
   fetchMovies,
   fetchTVShows,
   fetchContentForParticipants,
+  getDecadeDateRange,
 };
