@@ -9,7 +9,13 @@ function genresToJikanIds(genresNames) {
   const validGenres = Array.isArray(genresNames) ? genresNames : [];
 
   return validGenres
-    .map((name) => JIKAN_GENRE_MAPPING[name])
+    .map((name) => {
+      const id = JIKAN_GENRE_MAPPING[name];
+      if (id === undefined) {
+        console.warn(`Jikan genre mapping missing for: ${name}`);
+      }
+      return id;
+    })
     .filter((id) => id); // Отфильтровываем undefined (жанры, которые не нашлись)
 }
 

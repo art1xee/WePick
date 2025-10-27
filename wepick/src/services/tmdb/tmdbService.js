@@ -1,10 +1,18 @@
-// tmdbService.js - Обновленный с поддержкой Jikan API для аниме
-
 import { fetchAnime } from "../jikan/jikanService.js";
 import { TMDB_GENRE_MAPPING } from "../../constants/genres.js";
 
 const TMDB_KEY = import.meta.env.VITE_TMDB_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
+
+const getDecadeDateRange = (decade) => {
+  if (!decade) return {};
+  const startYear = decade;
+  const endYear = decade + 9;
+  return {
+    yearGte: `${startYear}-01-01`,
+    yearLte: `${endYear}-12-31`,
+  };
+};
 
 // Преобразуем названия жанров в TMDb IDs
 const genresToIds = (genresName) => {
@@ -22,12 +30,19 @@ export const fetchMovies = async (
   try {
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
+    const dateRange = getDecadeDateRange(decade);
 
     const params = new URLSearchParams({
       api_key: TMDB_KEY,
       sort_by: "popularity.desc",
       with_genres: likeIds.join(","),
       without_genres: dislikeIds.join(","),
+      ...(dateRange.yearGte && {
+        "primary_release_date.gte": dateRange.yearGte,
+      }),
+      ...(dateRange.yearLte && {
+        "primary_release_date.lte": dateRange.yearLte,
+      }),
       vote_count_gte: "100",
       language,
     }).toString();
@@ -60,12 +75,15 @@ export const fetchTVShows = async (
   try {
     const likeIds = genresToIds(likes);
     const dislikeIds = genresToIds(dislikes);
+    const dateRange = getDecadeDateRange(decade);
 
     const params = new URLSearchParams({
       api_key: TMDB_KEY,
       sort_by: "popularity.desc",
       with_genres: likeIds.join(","),
       without_genres: dislikeIds.join(","),
+      ...(dateRange.yearGte && { "first_air_date.gte": dateRange.yearGte }),
+      ...(dateRange.yearLte && { "first_air_date.lte": dateRange.yearLte }),
       vote_count_gte: "100",
       language,
     }).toString();
@@ -134,8 +152,8 @@ export const fetchContentForParticipants = async (
   let allLikes = [...new Set(participants.flatMap((p) => p.likes || []))];
   let allDislikes = [...new Set(participants.flatMap((p) => p.dislikes || []))];
 
-  // Берем декаду первого участника
-  const decade = participants[0]?.decade || 2000;
+  // Берем декаду пользователя, если есть, иначе дефолтное значение
+  const decade = user?.decade || 2000;
 
   console.log("Fetching content with params:", {
     contentType,
