@@ -507,6 +507,26 @@ body {
   align-items: center;
 }
 
+.genre-selected-dislike {
+  border: 2px solid #ff4d4d; /* Красная рамка для НЕЖЕЛАННЫХ */
+  box-shadow: 0 0 10px #ff4d4d;
+  color: var(--accent);
+}
+
+.genre-selected-like {
+  border: 2px solid #4d79ff; 
+  box-shadow: 0 0 10px #4d79ff;
+  color: var(--btn-choose-type);
+}
+
+.genre-disabled {
+  border: 2px solid #ff4d4d;
+  background-color: var(--muted) !important; /* Темно-серый фон */
+  color: #111 !important; /* Светло-серый текст */
+  cursor: not-allowed; /* Курсор "недоступно" */
+  opacity: 1;
+}
+
 .decade-spinner {
   font-family: "Press Start 2P", cursive;
   width: 30%;
@@ -941,14 +961,13 @@ body {
   text-shadow: 2px 2px 0 #fff;
 }
 
-/* Стили для центрирования экрана результатов */
 .result-screen, .result-noresult-screen {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Центрирование по вертикали */
-  align-items: center;     /* Центрирование по горизонтали */
+  justify-content: center; 
+  align-items: center;    
   text-align: center;
-  min-height: 70vh; /* Минимальная высота, чтобы было куда центрировать */
+  min-height: 70vh; 
   padding: 20px;
   border-radius: 30px;
   background-color: var(--card-screen);
@@ -956,7 +975,7 @@ body {
 }
 
 .result-noresult-title {
-  margin-bottom: 1rem; /* Добавим немного отступа снизу */
+  margin-bottom: 1rem; 
 }
 
 .result-warning-message {

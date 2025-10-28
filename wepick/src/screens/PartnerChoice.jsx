@@ -61,7 +61,6 @@ export default function PartnerChoice({
           <button
             key={o.key}
             onClick={() => onSelect(o)}
-            // onClick = { () => onChoose("friend")}
             className={
               value === o.key
                 ? `btn partner-choise btn-active-type btn-active-${o.key}`
@@ -86,4 +85,3 @@ export default function PartnerChoice({
     </div>
   );
 }
-

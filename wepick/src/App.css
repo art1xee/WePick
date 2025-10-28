@@ -41,20 +41,3 @@
   color: #888;
 }
 
-/* Стили для центрирования экрана результатов */
-.result-screen, .result-noresult-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Центрирование по вертикали */
-  align-items: center;     /* Центрирование по горизонтали */
-  text-align: center;
-  min-height: 70vh; /* Минимальная высота, чтобы было куда центрировать */
-  padding: 20px;
-  border-radius: 30px;
-  background-color: var(--card-screen);
-  color: var(--text-color);
-}
-
-.result-noresult-title {
-  margin-bottom: 1rem; /* Добавим немного отступа снизу */
-}

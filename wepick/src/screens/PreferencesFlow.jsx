@@ -66,6 +66,32 @@ export default function PreferencesFlow({
     }
   };
 
+  const handleLikeGenreClick = (genre) => {
+    if (dislikes.includes(genre)) {
+      const errorMessages = {
+        ua: "Цей жанр вже обраний як небажаний!",
+        ru: "Этот жанр уже выбран как нежелательный!",
+        en: "This genre has already been selected as disliked!",
+      };
+      alert(errorMessages[lang]);
+      return;
+    }
+    addToggle(likes, setLikes, genre, 3);
+  };
+
+  const getGenreClassName = (genre) => {
+    if (step === "likes" && dislikes.includes(genre)) {
+      return "genre-disabled";
+    }
+    if (step === "likes" && likes.includes(genre)) {
+      return "genre-selected-like";
+    }
+    if (step === "dislikes" && dislikes.includes(genre)) {
+      return "genre-selected-dislike";
+    }
+    return "genre-card";
+  };
+
   const getLabel = (key) => {
     const labelSet = labels[lang];
     const template = labelSet[key];
@@ -91,9 +117,7 @@ export default function PreferencesFlow({
             {dislikeOptions.map((g) => (
               <div
                 key={g}
-                className={`char-card ${
-                  dislikes.includes(g) ? "char-card-selected" : "genre-card"
-                }`}
+                className={`char-card ${getGenreClassName(g)}`}
                 style={UNIFIED_GENRE_CARD_STYLE}
                 onClick={() => addToggle(dislikes, setDislikes, g, 3)}
               >
@@ -127,11 +151,9 @@ export default function PreferencesFlow({
             {likeOptions.map((g) => (
               <div
                 key={g}
-                className={`char-card ${
-                  likes.includes(g) ? "char-card-selected" : "genre-card"
-                }`}
+                className={`char-card ${getGenreClassName(g)}`}
                 style={UNIFIED_GENRE_CARD_STYLE}
-                onClick={() => addToggle(likes, setLikes, g, 3)}
+                onClick={() => handleLikeGenreClick(g)}
               >
                 <div
                   className="genre-text"
