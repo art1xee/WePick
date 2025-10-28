@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { GENRES, ADDITIONAL_GENRES } from "../constants/genres";
-import { fetchContentForParticipants } from "../services/tmdb/tmdbService.js";
+import { fetchContentForParticipantsUnified as fetchContentForParticipants } from "../services/unifiend/unifiedService";
 
 const USER_NAME_STORAGE_KEY = "wepick_username";
 
