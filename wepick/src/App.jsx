@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import Landing from "./screens/Loading.jsx";
+import React from "react";
+import LandingScreen from "./screens/Loading.jsx";
 import ContentType from "./screens/ContentType.jsx";
 import PartnerChoice from "./screens/PartnerChoice.jsx";
 import CharacterGridOrFriend from "./screens/CharacterGridOrFriend.jsx";
@@ -7,7 +7,7 @@ import PreferencesFlow from "./screens/PreferencesFlow.jsx";
 import Summary from "./screens/Summary.jsx";
 import Results from "./screens/Results.jsx";
 import Header from "./components/Header.jsx";
-import { useAppState } from "./hooks/useAppState.js";
+import { useAppState } from "./hooks/useAppState";
 
 export default function App() {
   const {
@@ -18,35 +18,37 @@ export default function App() {
     nextStep,
     prevStep,
     forwardStep,
+    goToStep,
     ensureSecondParticipant,
     createCharacterParticipant,
     setLang,
     onFind,
+    reloadResults,
+    goBackFromResultsAndClear,
   } = useAppState();
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      console.log("Key pressed:", event.key);
-      if (event.key === "ArrowLeft") {
+  // Обработка кнопок браузера (назад/вперед)
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.altKey && e.key === "ArrowLeft") {
+        e.preventDefault();
         prevStep();
-      } else if (event.key === "ArrowRight") {
+      } else if (e.altKey && e.key === "ArrowRight") {
+        e.preventDefault();
         forwardStep();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [prevStep, forwardStep]);
 
   return (
     <div className="app">
-          <Header lang={state.lang} setLang={setLang} resetAll={resetAll} /> 
+      <Header lang={state.lang} setLang={setLang} resetAll={resetAll} />
       <div className="container">
         {state.step === 1 && (
-          <Landing
+          <LandingScreen
             lang={state.lang}
             onNext={(name) => {
               updateParticipant(0, { name });
@@ -54,6 +56,7 @@ export default function App() {
             }}
           />
         )}
+
         {state.step === 2 && (
           <ContentType
             lang={state.lang}
@@ -66,6 +69,7 @@ export default function App() {
             onNext={() => nextStep()}
           />
         )}
+
         {state.step === 3 && (
           <PartnerChoice
             lang={state.lang}
@@ -82,6 +86,7 @@ export default function App() {
             }}
           />
         )}
+
         {state.step === 4 && (
           <CharacterGridOrFriend
             lang={state.lang}
@@ -96,6 +101,7 @@ export default function App() {
             }}
           />
         )}
+
         {state.step === 5 && (
           <PreferencesFlow
             lang={state.lang}
@@ -107,6 +113,7 @@ export default function App() {
             }}
           />
         )}
+
         {state.step === 6 && state.partnerType === "friend" && (
           <PreferencesFlow
             lang={state.lang}
@@ -118,6 +125,7 @@ export default function App() {
             }}
           />
         )}
+
         {(state.step === 7 ||
           (state.step === 6 && state.partnerType === "popular-character")) && (
           <Summary
@@ -128,7 +136,7 @@ export default function App() {
             loading={state.loading}
           />
         )}
-               
+
         {state.step === 8 && (
           <Results
             movies={state.results}

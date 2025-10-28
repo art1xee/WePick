@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { GENRES, ADDITIONAL_GENRES } from "../constants/genres";
-import { fetchContentForParticipantsUnified } from "../services/unifiend/unifiedService";
+import { fetchContentForParticipants } from "../services/tmdb/tmdbService.js";
+
+const USER_NAME_STORAGE_KEY = "wepick_username";
 
 const initialState = () => ({
   lang: "ua",
@@ -23,30 +25,79 @@ const initialState = () => ({
   results: [],
   didWeakenFilters: false,
   characterName: null,
+  loading: false,
 });
 
 export const useAppState = () => {
   const [state, setState] = useState(() => {
-    // Handle initial load from URL hash for step
+    const initial = initialState();
+    try {
+      const savedName = localStorage.getItem(USER_NAME_STORAGE_KEY);
+      if (savedName) {
+        initial.participants[0].name = savedName;
+      }
+    } catch (error) {
+      console.error("Error loading name from localStorage:", error);
+    }
+
     const hashStep = parseInt(window.location.hash.replace("#step=", ""), 10);
     if (!isNaN(hashStep) && hashStep > 0) {
-      return { ...initialState(), step: hashStep };
+      initial.step = hashStep;
     }
-    return initialState();
+    return initial;
   });
 
-  // Resets all state
+  useEffect(() => {
+    try {
+      if (state.participants[0] && state.participants[0].name) {
+        localStorage.setItem(USER_NAME_STORAGE_KEY, state.participants[0].name);
+      } else {
+        localStorage.removeItem(USER_NAME_STORAGE_KEY);
+      }
+    } catch (error) {
+      console.error("Error saving name to localStorage:", error);
+    }
+  }, [state.participants[0]?.name]);
+
   const resetAll = () => {
     setState(initialState());
+    try {
+      localStorage.removeItem(USER_NAME_STORAGE_KEY);
+    } catch (error) {
+      console.error("Error clearing localStorage:", error);
+    }
+    window.history.replaceState({ step: 1 }, "", "#step=1");
   };
 
-  // Effect to handle browser's back/forward buttons (popstate event)
   useEffect(() => {
     const handlePopState = (event) => {
       if (event.state && event.state.step) {
         setState((s) => {
           const newStepIndex = s.stepHistory.lastIndexOf(event.state.step);
           if (newStepIndex !== -1) {
+            // ВАЖНО: Очистка предпочтений при возврате на шаги 1 или 4
+            const shouldClearPreferences =
+              event.state.step === 1 || event.state.step === 4;
+
+            if (shouldClearPreferences) {
+              const updatedParticipants = s.participants.map((p) => ({
+                ...p,
+                dislikes: [],
+                likes: [],
+                decade: 2000,
+              }));
+
+              return {
+                ...s,
+                step: event.state.step,
+                currentStepIndex: newStepIndex,
+                participants: updatedParticipants,
+                results: [],
+                didWeakenFilters: false,
+                characterName: null,
+              };
+            }
+
             return {
               ...s,
               step: event.state.step,
@@ -65,7 +116,6 @@ export const useAppState = () => {
     };
   }, []);
 
-  // Effect to update URL hash when step changes
   useEffect(() => {
     const currentPath = `#step=${state.step}`;
     if (window.location.hash !== currentPath) {
@@ -73,10 +123,8 @@ export const useAppState = () => {
     }
   }, [state.step]);
 
-  // Generic state update function
   const update = (patch) => setState((s) => ({ ...s, ...patch }));
 
-  // Updates a specific participant's data
   const updateParticipant = (idx, patch) => {
     setState((s) => {
       const participants = [...s.participants];
@@ -85,7 +133,6 @@ export const useAppState = () => {
     });
   };
 
-  // Navigates to the next step
   const nextStep = () =>
     setState((s) => {
       const newStep = s.step + 1;
@@ -105,21 +152,16 @@ export const useAppState = () => {
         const newStepIndex = s.currentStepIndex - 1;
         const newStep = s.stepHistory[newStepIndex];
 
-        // Clear preferences if navigating back from results (step 8) or back to the first step
-        const shouldClearPreferences = newStep === 1;
+        // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Очистка данных при возврате на шаг выбора персонажа (4) или главный экран (1)
+        const shouldClearPreferences = newStep === 1 || newStep === 4;
 
         if (shouldClearPreferences) {
-          const updatedParticipants = s.participants.map((p) => {
-            if (!p.isCharacter) {
-              return {
-                ...p,
-                dislikes: [],
-                likes: [],
-                decade: 2000,
-              };
-            }
-            return p;
-          });
+          const updatedParticipants = s.participants.map((p) => ({
+            ...p,
+            dislikes: [],
+            likes: [],
+            decade: 2000,
+          }));
 
           return {
             ...s,
@@ -144,7 +186,6 @@ export const useAppState = () => {
     });
   };
 
-  // Navigates forward in history if possible
   const forwardStep = () => {
     setState((s) => {
       if (s.step === 8) {
@@ -163,7 +204,6 @@ export const useAppState = () => {
     });
   };
 
-  // Navigates to a specific step, adding to history if needed
   const goToStep = (step) => {
     setState((s) => {
       const newHistory = s.stepHistory.slice(0, s.currentStepIndex + 1);
@@ -179,7 +219,6 @@ export const useAppState = () => {
     });
   };
 
-  // Navigates back from results screen and clears user preferences
   const goBackFromResultsAndClear = (targetStep) => {
     setState((s) => {
       const updatedParticipants = s.participants.map((p) => {
@@ -214,7 +253,6 @@ export const useAppState = () => {
     });
   };
 
-  // Ensures a second participant slot exists
   const ensureSecondParticipant = () => {
     setState((s) => {
       if (s.participants.length < 2) {
@@ -237,7 +275,6 @@ export const useAppState = () => {
     });
   };
 
-  // Creates a character participant with random preferences
   const createCharacterParticipant = (char) => {
     const currentLang = state.lang;
     const allGenres = [
@@ -281,7 +318,6 @@ export const useAppState = () => {
     });
   };
 
-  // Updates character genres based on new language
   const updateCharacterGenres = (newLang) => {
     setState((s) => {
       if (s.participants.length > 1 && s.participants[1].isCharacter) {
@@ -309,13 +345,11 @@ export const useAppState = () => {
     });
   };
 
-  // Sets the application language
   const setLang = (lang) => {
     setState((s) => ({ ...s, lang }));
     setTimeout(() => updateCharacterGenres(lang), 0);
   };
 
-  // Initiates content search and navigates to results
   const onFind = async () => {
     setState((s) => ({ ...s, loading: true }));
 
@@ -323,7 +357,7 @@ export const useAppState = () => {
       const tmdbLanguage =
         state.lang === "ua" ? "uk-UA" : state.lang === "ru" ? "ru-RU" : "en-US";
       const { results, didWeakenFilters, characterName } =
-        await fetchContentForParticipantsUnified(
+        await fetchContentForParticipants(
           state.participants,
           state.contentType,
           tmdbLanguage
@@ -342,7 +376,6 @@ export const useAppState = () => {
     }
   };
 
-  // Reloads content results without changing the step
   const reloadResults = async () => {
     setState((s) => ({ ...s, loading: true, results: [] }));
 
@@ -350,7 +383,7 @@ export const useAppState = () => {
       const tmdbLanguage =
         state.lang === "ua" ? "uk-UA" : state.lang === "ru" ? "ru-RU" : "en-US";
       const { results, didWeakenFilters, characterName } =
-        await fetchContentForParticipantsUnified(
+        await fetchContentForParticipants(
           state.participants,
           state.contentType,
           tmdbLanguage
