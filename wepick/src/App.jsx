@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import LandingScreen from "./screens/Loading.jsx";
+import Landing from "./screens/Loading.jsx";
 import ContentType from "./screens/ContentType.jsx";
 import PartnerChoice from "./screens/PartnerChoice.jsx";
 import CharacterGridOrFriend from "./screens/CharacterGridOrFriend.jsx";
@@ -46,7 +46,7 @@ export default function App() {
           <Header lang={state.lang} setLang={setLang} resetAll={resetAll} /> 
       <div className="container">
         {state.step === 1 && (
-          <LandingScreen
+          <Landing
             lang={state.lang}
             onNext={(name) => {
               updateParticipant(0, { name });

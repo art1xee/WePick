@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react"; // Corrected import: removed setState from direct import
+import { useState, useEffect } from "react";
 import { GENRES, ADDITIONAL_GENRES } from "../constants/genres";
 import { fetchContentForParticipantsUnified } from "../services/unifiend/unifiedService";
-
-const LOCAL_STORAGE_KEY = "wepick_state";
 
 const initialState = () => ({
   lang: "ua",
@@ -29,18 +27,6 @@ const initialState = () => ({
 
 export const useAppState = () => {
   const [state, setState] = useState(() => {
-    try {
-      const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (savedState) {
-        const parsedState = JSON.parse(savedState);
-        // Merge saved state with initial state to ensure all keys are present
-        return { ...initialState(), ...parsedState };
-      }
-    } catch (error) {
-      console.log("Error loading state from localStorage:", error);
-      localStorage.removeItem(LOCAL_STORAGE_KEY); // Clear corrupted state
-    }
-
     // Handle initial load from URL hash for step
     const hashStep = parseInt(window.location.hash.replace("#step=", ""), 10);
     if (!isNaN(hashStep) && hashStep > 0) {
@@ -49,45 +35,10 @@ export const useAppState = () => {
     return initialState();
   });
 
-  // Resets all state and clears local storage
+  // Resets all state
   const resetAll = () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
     setState(initialState());
   };
-
-  // Clears only the user's preferences and results-related state
-  const clearUserPreferences = () => {
-    setState((s) => {
-      const updatedParticipants = s.participants.map((p) => {
-        if (!p.isCharacter) {
-          // Assuming the user is the participant who is not a character
-          return {
-            ...p,
-            dislikes: [],
-            likes: [],
-            decade: 2000, // Reset to default decade
-          };
-        }
-        return p;
-      });
-      return {
-        ...s,
-        participants: updatedParticipants,
-        results: [], // Clear results
-        didWeakenFilters: false, // Clear weakened filters flag
-        characterName: null, // Clear character name from results context
-      };
-    });
-  };
-
-  // Effect to save state to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-    } catch (error) {
-      console.error("Error saving state to local storage:", error);
-    }
-  }, [state]);
 
   // Effect to handle browser's back/forward buttons (popstate event)
   useEffect(() => {
@@ -154,19 +105,17 @@ export const useAppState = () => {
         const newStepIndex = s.currentStepIndex - 1;
         const newStep = s.stepHistory[newStepIndex];
 
-        // Determine if preferences should be cleared
-        // Clear if navigating back from results (step 8) OR if navigating back to the very first step (step 1)
-        const shouldClearPreferences = s.step === 8 || newStep === 1;
+        // Clear preferences if navigating back from results (step 8) or back to the first step
+        const shouldClearPreferences = newStep === 1;
 
         if (shouldClearPreferences) {
           const updatedParticipants = s.participants.map((p) => {
             if (!p.isCharacter) {
-              // Assuming the user is the participant who is not a character
               return {
                 ...p,
                 dislikes: [],
                 likes: [],
-                decade: 2000, // Reset to default decade
+                decade: 2000,
               };
             }
             return p;
@@ -176,14 +125,13 @@ export const useAppState = () => {
             ...s,
             step: newStep,
             currentStepIndex: newStepIndex,
-            participants: updatedParticipants, // Apply cleared preferences
-            results: [], // Clear results
-            didWeakenFilters: false, // Clear weakened filters flag
-            characterName: null, // Clear character name from results context
+            participants: updatedParticipants,
+            results: [],
+            didWeakenFilters: false,
+            characterName: null,
           };
         }
 
-        // For other backward navigations, just go back normally without clearing preferences
         return {
           ...s,
           step: newStep,
@@ -234,7 +182,6 @@ export const useAppState = () => {
   // Navigates back from results screen and clears user preferences
   const goBackFromResultsAndClear = (targetStep) => {
     setState((s) => {
-      // Reset user's preferences and results-related state
       const updatedParticipants = s.participants.map((p) => {
         if (!p.isCharacter) {
           return {
@@ -247,23 +194,20 @@ export const useAppState = () => {
         return p;
       });
 
-      // Navigate to the target step, ensuring history is handled
       const newHistory = s.stepHistory.slice(0, s.currentStepIndex + 1);
       let newStepIndex = newHistory.lastIndexOf(targetStep);
       if (newStepIndex === -1) {
-        // If targetStep is not in current history, add it
         newHistory.push(targetStep);
         newStepIndex = newHistory.length - 1;
       }
 
       return {
-        // Corrected return statement for setState
         ...s,
         step: targetStep,
         stepHistory: newHistory,
         currentStepIndex: newStepIndex,
-        participants: updatedParticipants, // Apply cleared preferences
-        results: [], // Clear results
+        participants: updatedParticipants,
+        results: [],
         didWeakenFilters: false,
         characterName: null,
       };
@@ -323,7 +267,7 @@ export const useAppState = () => {
     setState((s) => {
       const participants = [...s.participants];
       if (participants.length < 2) {
-        participants.push({}); // Ensure there's a slot for the character
+        participants.push({});
       }
       participants[1] = {
         name: char.name,
@@ -331,7 +275,7 @@ export const useAppState = () => {
         likes,
         decade,
         isCharacter: true,
-        content: participants[0].content, // Character's content might depend on user's
+        content: participants[0].content,
       };
       return { ...s, participants, chosenCharacter: char, step: s.step + 1 };
     });
@@ -368,7 +312,7 @@ export const useAppState = () => {
   // Sets the application language
   const setLang = (lang) => {
     setState((s) => ({ ...s, lang }));
-    setTimeout(() => updateCharacterGenres(lang), 0); // Update character genres after language change
+    setTimeout(() => updateCharacterGenres(lang), 0);
   };
 
   // Initiates content search and navigates to results
@@ -388,7 +332,7 @@ export const useAppState = () => {
         ...s,
         results,
         loading: false,
-        step: 8, // Navigate to results screen
+        step: 8,
         didWeakenFilters,
         characterName,
       }));
@@ -424,7 +368,6 @@ export const useAppState = () => {
     }
   };
 
-  // Expose state and functions
   return {
     state,
     resetAll,

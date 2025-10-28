@@ -25,15 +25,19 @@ export default function Landing({ lang = "ua", onNext }) {
     <div className="screen landing">
       <div className="logo-anim" aria-hidden>
         <div className="film-logo">
-          <img src="/src/images/logo_wepick_pixel.png" alt="Film Reel" width={400}/>
-          </div>
+          <img
+            src="/src/images/logo_wepick_pixel.png"
+            alt="Film Reel"
+            width={400}
+          />
+        </div>
       </div>
 
       <p className="landing-text">
-        {texts[lang].main.split('\n').map((line, i) => (
+        {texts[lang].main.split("\n").map((line, i) => (
           <React.Fragment key={i}>
             {line}
-            {i < texts[lang].main.split('\n').length - 1 && <br />}
+            {i < texts[lang].main.split("\n").length - 1 && <br />}
           </React.Fragment>
         ))}
       </p>
