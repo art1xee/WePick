@@ -5,6 +5,7 @@ const labels = {
     title: "Зустріньте свою кінопару!",
     info_button: "Більше деталей..",
     more_button: "Бачили - показати інше",
+    reload_button: "Оновити підбір",
     restart_button: "Почати спочатку",
     loading: "Завантаження...",
     name: "Назва: ",
@@ -22,6 +23,7 @@ const labels = {
     title: "Встретьте свою кино-пару!",
     info_button: "Больше деталей..",
     more_button: "Видели - показать другое",
+    reload_button: "Обновить подборку",
     restart_button: "Начать сначала",
     loading: "Загрузка...",
     name: "Название: ",
@@ -39,7 +41,9 @@ const labels = {
     title: "Meet your movie match!",
     info_button: "More details..",
     more_button: "Seen it - show another",
+    reload_button: "Refresh",
     restart_button: "Start over",
+    reload_button: "Reload search",
     loading: "Loading...",
     name: "Name: ",
     year: "Year: ",
@@ -139,7 +143,7 @@ const ResultCard = ({ current, contentType, text }) => (
   </div>
 );
 
-const ResultActions = ({ detailsLinks, text, onNext, onRestart }) => (
+const ResultActions = ({ detailsLinks, text, onNext, onReload, onRestart }) => (
   <div className="result-actions" style={{ marginTop: "30px" }}>
     <div className="result-more-button">
       <button
@@ -148,6 +152,16 @@ const ResultActions = ({ detailsLinks, text, onNext, onRestart }) => (
         style={{ marginRight: "10px" }}
       >
         {text.more_button}
+      </button>
+    </div>
+
+    <div className="result-reload-button">
+      <button
+        onClick={onReload}
+        className="btn btn-active"
+        style={{ marginRight: "10px" }}
+      >
+        {text.reload_button}
       </button>
     </div>
 
@@ -163,6 +177,7 @@ const ResultActions = ({ detailsLinks, text, onNext, onRestart }) => (
 export default function Results({
   movies = [],
   onRestart,
+  onReload, // Принимаем onReload
   lang = "ua",
   loading = false,
   didWeakenFilters = false,
@@ -207,7 +222,12 @@ export default function Results({
         {idx + 1} / {movies.length}
       </div>
 
-      <ResultActions text={text} onNext={next} onRestart={onRestart} />
+      <ResultActions
+        text={text}
+        onNext={next}
+        onReload={onReload}
+        onRestart={onRestart}
+      />
     </div>
   );
 }

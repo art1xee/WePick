@@ -34,7 +34,7 @@ function genresToJikanIds(genresNames) {
  * @param {number} limit
  * @param {number} decade - The decade to filter by (e.g., 2000 for 2000-2009)
  */
-export async function fetchAnime(likes = [], limit = 20, decade) {
+export async function fetchAnime(likes = [], limit = 60, decade) {
   const genreIds = genresToJikanIds(likes);
 
   const genreQuery = genreIds.length > 0 ? `&genres=${genreIds.join(",")}` : "";

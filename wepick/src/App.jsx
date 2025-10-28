@@ -141,6 +141,7 @@ export default function App() {
           <Results
             movies={state.results}
             onRestart={resetAll}
+            onReload={reloadResults}
             lang={state.lang}
             loading={state.loading}
             didWeakenFilters={state.didWeakenFilters}
