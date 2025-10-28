@@ -69,7 +69,7 @@ const linksAboutContent = (movie, contentType) => {
   return `https://www.imdb.com/find?q=${searchQuery}`;
 };
 
-const LoadingScreen = ({text}) => (
+const LoadingScreen = ({ text }) => (
   <div className="result-screen">
     <div className="loading-animation">
       <div className="film-logo" style={{ fontSize: "100px" }}>
@@ -81,11 +81,9 @@ const LoadingScreen = ({text}) => (
 );
 
 const NoResult = ({ text, onRestart }) => (
-  <div className="result-screen">
-    <h2 className="result-title">{text.no_results}</h2>
-    <p>
-      {text.no_results_desc}
-    </p>
+  <div className="result-noresult-screen">
+    <h2 className="result-noresult-title">{text.no_results}</h2>
+    <p>{text.no_results_desc}</p>
     <div style={{ margin: "30px" }}>
       <button onClick={onRestart} className="btn btn-active">
         {text.restart_button}
@@ -112,15 +110,9 @@ const ResultCard = ({ current, contentType, text }) => (
     </h3>
 
     {current.poster ? (
-      <img
-        src={current.poster}
-        alt={current.title}
-        className="result-poster"
-      />
+      <img src={current.poster} alt={current.title} className="result-poster" />
     ) : (
-      <div className="poster-placehholder">
-        🎬
-      </div>
+      <div className="poster-placehholder">🎬</div>
     )}
 
     <div className="result-info">
@@ -129,15 +121,16 @@ const ResultCard = ({ current, contentType, text }) => (
           <strong>{text.rating}</strong> ⭐ {current.rating.toFixed(1)}/10
         </p>
       )}
-                {/*content type display*/}
+      {/*content type display*/}
       {contentType === "anime" && current.type && (
-        <p >
-          <strong>{text.type}</strong>{current.type}
+        <p>
+          <strong>{text.type}</strong>
+          {current.type}
         </p>
       )}
 
-                {/*episodes display*/}
-      {contentType==="anime" && current.episodes &&(
+      {/*episodes display*/}
+      {contentType === "anime" && current.episodes && (
         <p>
           <strong>{text.episodes}</strong> {current.episodes}
         </p>
@@ -148,22 +141,21 @@ const ResultCard = ({ current, contentType, text }) => (
 
 const ResultActions = ({ detailsLinks, text, onNext, onRestart }) => (
   <div className="result-actions" style={{ marginTop: "30px" }}>
-  <div className="result-more-button">
+    <div className="result-more-button">
       <button
-      onClick={onNext}
-      className="btn btn-active"
-      style={{ marginRight: "10px" }}
-    >
-      {text.more_button}
-    </button>
-  </div>
-    
-  <div className="result-restart-button">
-    <button onClick={onRestart} className="btn btn-reset">
-      {text.restart_button}
+        onClick={onNext}
+        className="btn btn-active"
+        style={{ marginRight: "10px" }}
+      >
+        {text.more_button}
       </button>
     </div>
-    
+
+    <div className="result-restart-button">
+      <button onClick={onRestart} className="btn btn-reset">
+        {text.restart_button}
+      </button>
+    </div>
   </div>
 );
 
@@ -191,37 +183,31 @@ export default function Results({
   }
 
   const current = movies[idx];
-const next = () => setIdx((i) => (i + 1) % movies.length);
+  const next = () => setIdx((i) => (i + 1) % movies.length);
 
-// formating a wanring message if filters were weakened
-const warningMessage = didWeakenFilters
-  ? text.weakened_filters_warning.replace(
-      "{characterName}",
-      characterName || "персонажа"
-    )
-  : null;
+  // formating a wanring message if filters were weakened
+  const warningMessage = didWeakenFilters
+    ? text.weakened_filters_warning.replace(
+        "{characterName}",
+        characterName || "персонажа"
+      )
+    : null;
 
-// getting links about content
+  // getting links about content
   const detailsLinks = linksAboutContent(current, contentType);
 
-// main render
+  // main render
   return (
-  <div className="result-screen">
-    <ResultHeader title={text.title} warningMessage={warningMessage} />
-    <ResultCard current={current} contentType={contentType} text={text} />
-    
-    {/* show user how many pages with content left*/}  
-    <div className="result-index">
-      {idx + 1} / {movies.length}
+    <div className="result-screen">
+      <ResultHeader title={text.title} warningMessage={warningMessage} />
+      <ResultCard current={current} contentType={contentType} text={text} />
+
+      {/* show user how many pages with content left*/}
+      <div className="result-index">
+        {idx + 1} / {movies.length}
+      </div>
+
+      <ResultActions text={text} onNext={next} onRestart={onRestart} />
     </div>
-
-    <ResultActions
-      text={text}
-      onNext={next}
-      onRestart={onRestart}
-    />
-  </div>
-  )
+  );
 }
-
-
