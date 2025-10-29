@@ -2,7 +2,7 @@ import { JIKAN_GENRE_MAPPING } from "../../constants/genres.js";
 const JIKAN_BASE_URL = "https://api.jikan.moe/v4";
 
 /**
- * @param {Array<string>} genresNames - массив строк, представляющих жанры (лайки).
+ * Конвертирует жанры в их Jikan ID.
  */
 function genresToJikanIds(genresNames) {
   const validGenres = Array.isArray(genresNames) ? genresNames : [];
@@ -11,7 +11,7 @@ function genresToJikanIds(genresNames) {
     .map((name) => {
       const id = JIKAN_GENRE_MAPPING[name];
       if (id === undefined) {
-        console.warn(`Jikan genre mapping missing for: ${name}`);
+        console.warn(`⚠️ Jikan genre mapping missing for: ${name}`);
       }
       return id;
     })
@@ -19,10 +19,11 @@ function genresToJikanIds(genresNames) {
 }
 
 /**
- * @param {Array<string>} likes
- * @param {Array<string>} dislikes
- * @param {number} decade - The decade to filter by (e.g., 2000 for 2000-2009)
- * @param {number} limit
+ * Загружает аниме с Jikan API по жанрам и фильтрам.
+ * @param {Array<string>} likes - предпочтительные жанры
+ * @param {Array<string>} dislikes - нежелательные жанры (пока не используется)
+ * @param {number} decade - десятилетие (например, 2000 для 2000–2009)
+ * @param {number} limit - общий лимит
  */
 export async function fetchAnime(
   likes = [],
@@ -33,48 +34,63 @@ export async function fetchAnime(
   console.log("fetchAnime params:", { likes, dislikes, decade });
   const genreIds = genresToJikanIds(likes);
 
-  // Правильный формат для множественных жанров
-  const genreQuery =
-    genreIds.length > 0 ? genreIds.map((id) => `&genres=${id}`).join("") : "";
-
-  // Фильтр по десятилетию (только начальный год)
-  const yearQuery = decade ? `&start_date=${decade}` : "";
-
-  // Убираем end_date, так как Jikan API его не поддерживает в таком формате
-  const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}${yearQuery}`;
-
-  console.log("Requesting Jikan URL:", url);
+  if (genreIds.length === 0) {
+    console.warn("⚠️ Нет подходящих жанров, возвращаю пустой массив");
+    return [];
+  }
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Jikan API Error: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const results = [];
 
-    if (!Array.isArray(data.data)) {
-      console.warn(
-        "Jikan API did not return a valid data array. Response:",
-        data
-      );
-      return [];
+    // Ограничим количество запросов (Jikan не любит спам)
+    const limitedGenres = genreIds.slice(0, 5);
+
+    // Делаем последовательные запросы (чтобы не ловить 429 Too Many Requests)
+    for (const id of limitedGenres) {
+      const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${Math.ceil(
+        limit / limitedGenres.length
+      )}&genres=${id}`;
+
+      console.log("🔹 Requesting:", url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(
+          `❌ Jikan API Error ${response.status}: ${response.statusText}`
+        );
+        continue;
+      }
+
+      const data = await response.json();
+      if (Array.isArray(data.data)) {
+        results.push(...data.data);
+      }
     }
 
-    // Фильтруем результаты по десятилетию на клиенте
-    let filtered = data.data;
+    // Удаляем дубликаты
+    const unique = Array.from(
+      new Map(results.map((a) => [a.mal_id, a])).values()
+    );
+
+    // Фильтруем по десятилетию (если указано)
+    let filtered = unique;
     if (decade) {
       const endYear = decade + 9;
-      filtered = data.data.filter((a) => {
+      filtered = unique.filter((a) => {
         const year =
           a.year ||
-          (a.aired?.from ? new Date(a.aired.from).getFullYear() : null);
+          (a.aired?.from ? new Date(a.aired.from).getFullYear() : null) ||
+          a.aired?.prop?.from?.year;
         return year && year >= decade && year <= endYear;
       });
+      console.log(
+        `📅 Отфильтровано ${filtered.length} аниме (${decade}-${endYear})`
+      );
     }
 
+    // Приводим к единому виду
     return filtered.map((a) => ({
       id: a.mal_id,
-      title: a.title_russian || a.title_english || a.title,
+      title: a.title_english || a.title || a.title_japanese,
       overview: a.synopsis || null,
       rating: a.score ?? null,
       poster: a.images?.webp?.image_url || a.images?.jpg?.image_url || null,
@@ -83,7 +99,7 @@ export async function fetchAnime(
       raw: a,
     }));
   } catch (error) {
-    console.error("Ошибка при загрузке аниме из Jikan API:", error);
-    throw error;
+    console.error("💥 Ошибка при загрузке аниме из Jikan API:", error);
+    return [];
   }
 }
