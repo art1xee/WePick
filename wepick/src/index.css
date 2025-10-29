@@ -482,7 +482,7 @@ body {
 /*==================================================*/
 /* 11. DISLIKES 3 GENRE SCREEN */
 /*==================================================*/
-.dislikes-screen, /* Добавляем класс родительского div из PreferencesFlow */
+.dislikes-screen, 
 .genres-screen {
   display: flex;
   flex-direction: column;
