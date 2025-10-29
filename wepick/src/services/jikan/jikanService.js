@@ -31,10 +31,16 @@ function genresToJikanIds(genresNames) {
 /**
  *
  * @param {Array<string>} likes
+ * @param {Arrat<string>} dislikes
  * @param {number} limit
  * @param {number} decade - The decade to filter by (e.g., 2000 for 2000-2009)
  */
-export async function fetchAnime(likes = [], limit = 60, decade) {
+export async function fetchAnime(
+  likes = [],
+  dislikes = [],
+  limit = 60,
+  decade
+) {
   const genreIds = genresToJikanIds(likes);
 
   const genreQuery = genreIds.length > 0 ? `&genres=${genreIds.join(",")}` : "";
@@ -60,6 +66,9 @@ export async function fetchAnime(likes = [], limit = 60, decade) {
       rating: a.score ?? null,
       poster: a.images?.webp?.image_url || a.images?.jpg?.image_url || null,
       year: a.year ?? null,
+      type: a.type || null,
+      episodes: a.episodes || null,
+      malUrl: `https://myanimelist.net/anime/${a.mal_id}`,
       source: "jikan",
       raw: a,
     }));
