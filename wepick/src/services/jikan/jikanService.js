@@ -41,6 +41,7 @@ export async function fetchAnime(
   decade,
   limit = 60
 ) {
+  console.log("fetchAnime params:", { likes, dislikes, decade });
   const genreIds = genresToJikanIds(likes);
 
   const genreQuery = genreIds.length > 0 ? `&genres=${genreIds.join(",")}` : "";
@@ -50,7 +51,9 @@ export async function fetchAnime(
       ? `&start_date=${dateRange.yearGte}&end_date=${dateRange.yearLte}`
       : "";
 
-  const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}${dateQuery}`;
+  const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}`;
+
+  console.log("Requesting Jikan URL:", url);
 
   try {
     const response = await fetch(url);
@@ -59,6 +62,14 @@ export async function fetchAnime(
     }
     const data = await response.json();
 
+    if (!Array.isArray(data.data)) {
+      console.warn(
+        "Jikan API did not return a valid data array. Response:",
+        data
+      );
+      return [];
+    }
+
     return data.data.map((a) => ({
       id: a.mal_id,
       title: a.title_russian || a.title_english || a.title,
@@ -66,9 +77,9 @@ export async function fetchAnime(
       rating: a.score ?? null,
       poster: a.images?.webp?.image_url || a.images?.jpg?.image_url || null,
       year: a.year ?? null,
-      type: a.type || null,
-      episodes: a.episodes || null,
-      malUrl: `https://myanimelist.net/anime/${a.mal_id}`,
+      // type: a.type || null,
+      // episodes: a.episodes || null,
+      // malUrl: `https://myanimelist.net/anime/${a.mal_id}`,
       source: "jikan",
       raw: a,
     }));
