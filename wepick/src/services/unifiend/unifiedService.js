@@ -14,6 +14,16 @@ function hasAnimePref(preferences) {
   );
 }
 
+// function for shuffling arrays
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 /**
  * Вспомогательная функция для получения контента TMDb (нужна для логики ослабления фильтров)
  */
@@ -37,22 +47,24 @@ export async function fetchContentForParticipantsUnified(
   contentType,
   language = "en-US"
 ) {
-  // 1. Идентифицируем участников
+  // 1. indetification all users
   const user = participants.find((p) => !p.isCharacter);
   const character = participants.find((p) => p.isCharacter);
   let didWeaken = false;
 
-  // 2. Объединяем ВСЕ лайки и дизлайки
+  // 2. merging all likes & dislikes
   let allLikes = [...new Set(participants.flatMap((p) => p.likes || []))];
   let allDislikes = [...new Set(participants.flatMap((p) => p.dislikes || []))];
   const decade = participants[0]?.decade || 2000;
 
-  // 3. Если есть упоминание "аниме" ИЛИ выбран тип "anime" — идём через Jikan
+  // 3. if we have a reminder "anime" or chosen type "anime" - using JIKAN api
   if (hasAnimePref(allLikes) || contentType === "anime") {
-    // <--- ИСПРАВЛЕНО: используется fetchAnime
-    const jikanResults = await fetchAnime(allLikes, 20);
+    const jikanResults = await fetchAnime(allLikes, allDislikes, decade, 60);
+
+    const shuffled = shuffleArray(jikanResults);
+
     return {
-      results: jikanResults.slice(0, 20),
+      results: shuffled.slice(0, 20),
       didWeakenFilters: false,
       characterName: character?.name || null,
     };
@@ -105,8 +117,10 @@ export async function fetchContentForParticipantsUnified(
     raw: r,
   }));
 
+  const shuffled = shuffleArray(mapped);
+
   return {
-    results: mapped.slice(0, 20),
+    results: shuffled.slice(0, 20),
     didWeakenFilters: didWeaken,
     characterName: character?.name || null,
   };

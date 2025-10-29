@@ -29,17 +29,17 @@ function genresToJikanIds(genresNames) {
 }
 
 /**
- *
+ * ✅ ИСПРАВЛЕНО: добавлен параметр dislikes
  * @param {Array<string>} likes
- * @param {Arrat<string>} dislikes
- * @param {number} limit
+ * @param {Array<string>} dislikes
  * @param {number} decade - The decade to filter by (e.g., 2000 for 2000-2009)
+ * @param {number} limit
  */
 export async function fetchAnime(
   likes = [],
   dislikes = [],
-  limit = 60,
-  decade
+  decade,
+  limit = 60
 ) {
   const genreIds = genresToJikanIds(likes);
 
@@ -47,7 +47,7 @@ export async function fetchAnime(
   const dateRange = getDecadeDateRange(decade);
   const dateQuery =
     dateRange.yearGte && dateRange.yearLte
-      ? `&start_date_after=${dateRange.yearGte}&start_date_before=${dateRange.yearLte}`
+      ? `&start_date=${dateRange.yearGte}&end_date=${dateRange.yearLte}`
       : "";
 
   const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}${dateQuery}`;
