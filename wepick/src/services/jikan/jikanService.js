@@ -1,16 +1,6 @@
 import { JIKAN_GENRE_MAPPING } from "../../constants/genres.js";
 const JIKAN_BASE_URL = "https://api.jikan.moe/v4";
 
-const getDecadeDateRange = (decade) => {
-  if (!decade) return {};
-  const startYear = decade;
-  const endYear = decade + 9;
-  return {
-    yearGte: `${startYear}-01-01`,
-    yearLte: `${endYear}-12-31`,
-  };
-};
-
 /**
  * @param {Array<string>} genresNames - массив строк, представляющих жанры (лайки).
  */
@@ -29,7 +19,6 @@ function genresToJikanIds(genresNames) {
 }
 
 /**
- * ✅ ИСПРАВЛЕНО: добавлен параметр dislikes
  * @param {Array<string>} likes
  * @param {Array<string>} dislikes
  * @param {number} decade - The decade to filter by (e.g., 2000 for 2000-2009)
@@ -44,14 +33,15 @@ export async function fetchAnime(
   console.log("fetchAnime params:", { likes, dislikes, decade });
   const genreIds = genresToJikanIds(likes);
 
-  const genreQuery = genreIds.length > 0 ? `&genres=${genreIds.join(",")}` : "";
-  const dateRange = getDecadeDateRange(decade);
-  const dateQuery =
-    dateRange.yearGte && dateRange.yearLte
-      ? `&start_date=${dateRange.yearGte}&end_date=${dateRange.yearLte}`
-      : "";
+  // Правильный формат для множественных жанров
+  const genreQuery =
+    genreIds.length > 0 ? genreIds.map((id) => `&genres=${id}`).join("") : "";
 
-  const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}`;
+  // Фильтр по десятилетию (только начальный год)
+  const yearQuery = decade ? `&start_date=${decade}` : "";
+
+  // Убираем end_date, так как Jikan API его не поддерживает в таком формате
+  const url = `${JIKAN_BASE_URL}/anime?order_by=score&sort=desc&limit=${limit}${genreQuery}${yearQuery}`;
 
   console.log("Requesting Jikan URL:", url);
 
@@ -70,16 +60,25 @@ export async function fetchAnime(
       return [];
     }
 
-    return data.data.map((a) => ({
+    // Фильтруем результаты по десятилетию на клиенте
+    let filtered = data.data;
+    if (decade) {
+      const endYear = decade + 9;
+      filtered = data.data.filter((a) => {
+        const year =
+          a.year ||
+          (a.aired?.from ? new Date(a.aired.from).getFullYear() : null);
+        return year && year >= decade && year <= endYear;
+      });
+    }
+
+    return filtered.map((a) => ({
       id: a.mal_id,
       title: a.title_russian || a.title_english || a.title,
       overview: a.synopsis || null,
       rating: a.score ?? null,
       poster: a.images?.webp?.image_url || a.images?.jpg?.image_url || null,
       year: a.year ?? null,
-      // type: a.type || null,
-      // episodes: a.episodes || null,
-      // malUrl: `https://myanimelist.net/anime/${a.mal_id}`,
       source: "jikan",
       raw: a,
     }));
