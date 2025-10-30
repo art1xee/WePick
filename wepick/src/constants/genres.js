@@ -1,4 +1,5 @@
 export const GENRES = {
+  // main list of genres, localized by language (ukranian, russian, english)
   ua: [
     "Бойовик",
     "Пригоди",
@@ -34,7 +35,7 @@ export const GENRES = {
     "Триллер",
     "Повседневность",
     "Спорт",
-    "Сверхъестественное",
+    "Сверхъ-\nестественное",
     "Исторический",
     "Военный",
     "Криминал",
@@ -68,6 +69,7 @@ export const GENRES = {
 };
 
 export const ADDITIONAL = {
+  // list of additional, more specific tags or sub-genres, localized by language
   ua: [
     "Психологічний",
     "Супергерої",
@@ -136,6 +138,8 @@ export const ADDITIONAL = {
   ],
 };
 
+// this appears to be a duplicate of the 'ADDITIONAL' constant.
+// consider if this is intendet or if one of them can be removed.
 export const ADDITIONAL_GENRES = {
   ua: [
     "Психологічний",
@@ -206,6 +210,7 @@ export const ADDITIONAL_GENRES = {
 };
 
 export const TMDB_GENRE_MAPPING = {
+  // mapping of localized genre names to TMDB (the movie database) genre IDs.
   Action: 28,
   Бойовик: 28,
   Боевик: 28,
@@ -272,6 +277,7 @@ export const TMDB_GENRE_MAPPING = {
 };
 
 export const JIKAN_GENRE_MAPPING = {
+  // mapping of localized genre names to Jikan (myAnimeList API) genre IDs
   Action: 1,
   Бойовик: 1,
   Боевик: 1,

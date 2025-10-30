@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-// Объект с переводами для контента меню
+// objects containing localized texts for different languages.
 const texts = {
   ua: {
     title: "Про WePick!",
@@ -22,17 +22,23 @@ const texts = {
   },
 };
 
+/**
+ * Header component that includes the logo? language selection, and an info menu.
+ * @param {object} props - The component props
+ * @param {string} props.lang - The current language code (e.g., 'ua', 'en')
+ * @param {function} props.setLang - Function to update the language.
+ * @param {function} props.resetAll - Funtion to reset the app state.
+ */
 export default function Header({ lang = "ua", setLang, resetAll }) {
+  // state to manage the visibility of the side menu.
   const [open, setOpen] = useState(false);
-  // 1. Создаем реф для всего контейнера меню
+  // ref to the menu container to detect clicks outside of it.
   const menuRef = useRef(null);
 
-  // 2. Логика закрытия меню по клику вне него
+  // effect to handle closing the menu when clicking outside of it.
   useEffect(() => {
-    // Функция для обработки кликов
     function handleClickOutside(event) {
-      // Если меню открыто И клик произошел вне контейнера меню
-      // Также проверяем, что клик не был по кнопке гамбургера или селектору языка
+      // close the menu if it`s open and the click is not inside the meny or on the hamburger/language selectors.
       if (
         open &&
         menuRef.current &&
@@ -43,23 +49,22 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
         setOpen(false);
       }
     }
-
-    // Добавляем слушатель события на весь документ
+    // add event listener when the component mounts.
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Очистка слушателя события при размонтировании компонента
+    // clean up the event listener when the component unmounts.
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [open]); // Зависимость от состояния 'open'
+  }, [open]); // rerun the effect only if the 'open' state changes.
 
-  // Получаем текущие тексты, используя безопасный доступ (lang || 'ua')
+  // select the appropriate text based on the current language, defaulting to UA.
   const currentTexts = texts[lang] || texts.ua;
 
   return (
     <header className="header">
       <div className="logo">WePick!</div>
       <div className="header-right">
+        {/* language selection drop */}
         <select
           value={lang}
           onChange={(e) => setLang(e.target.value)}
@@ -71,6 +76,7 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
           <option value="en">English</option>
         </select>
 
+        {/* hamburger btn to toggle the menu */}
         <button
           className="hamburger"
           onClick={() => setOpen((o) => !o)}
@@ -79,17 +85,15 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
           {open ? "×" : "≡"}
         </button>
 
-        {/* Меню с применением рефа и динамическим классом для анимации */}
+        {/* the side menu, which appears when 'open' is true */}
         <div
           ref={menuRef}
           className={`menu ${open ? "menu-open" : "menu-closed"}`}
         >
           <div className="menu-content">
-            {/* Динамический заголовок */}
             <h3 className="menu-title">{currentTexts.title}</h3>
-
-            {/* Динамическое описание с поддержкой переноса строк */}
             <p>
+              {/* render multiline text correctly*/}
               {currentTexts.main.split("\n").map((line, i) => (
                 <React.Fragment key={i}>
                   {line}
@@ -99,13 +103,12 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
             </p>
 
             <div className="menu-button-container">
+              {/* btn to reset the app state */}
               <button onClick={resetAll} className="btn btn-reset">
-                {/* Динамический текст кнопки */}
                 {currentTexts.button}
               </button>
             </div>
-
-            {/* Динамическая информация о версии */}
+            {/* link to the GitHub repository */}
             <p className="menu-version">{currentTexts.version}</p>
             <a href="https://github.com/art1xee/WePick" className="menu-github">
               {" "}
