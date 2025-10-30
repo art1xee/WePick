@@ -26,6 +26,8 @@ const initialState = () => ({
   didWeakenFilters: false,
   characterName: null,
   loading: false,
+  allFetchedResults: [],
+  currentResultsPage: 0,
 });
 
 export const useAppState = () => {
@@ -95,6 +97,8 @@ export const useAppState = () => {
                 results: [],
                 didWeakenFilters: false,
                 characterName: null,
+                allFetchedResults: [],
+                currentResultsPage: 0,
               };
             }
 
@@ -171,6 +175,8 @@ export const useAppState = () => {
             results: [],
             didWeakenFilters: false,
             characterName: null,
+            allFetchedResults: [],
+            currentResultsPage: 0,
           };
         }
 
@@ -249,6 +255,8 @@ export const useAppState = () => {
         results: [],
         didWeakenFilters: false,
         characterName: null,
+        allFetchedResults: [],
+        currentResultsPage: 0,
       };
     });
   };
@@ -369,6 +377,8 @@ export const useAppState = () => {
         step: 8,
         didWeakenFilters,
         characterName,
+        allFetchedResults: results,
+        currentResultsPage: 0,
       }));
     } catch (error) {
       console.error("Ошибка при загрузке контента:", error);

@@ -5,23 +5,22 @@ const texts = {
   ua: {
     title: "Про WePick!",
     main: "WePick! — це зручний інструмент для вибору фільмів, \nсеріалів або іншого контенту, який сподобається всім учасникам.\nВи встановлюєте спільні фільтри, а ми пропонуємо ідеальний варіант.",
-    button: "Почати спочатку",
-    version: "Код цього додатку доступний на GitHub: "
+    button: "Почати спочатку ",
+    version: "Код цього додатку доступний на GitHub: ",
   },
   ru: {
     title: "О WePick!",
     main: "WePick! — это удобный инструмент для выбора фильмов, \nсериалов или другого контента, который понравится всем участникам.\nВы устанавливаете общие фильтры, а мы предлагаем идеальный вариант.",
-    button: "Начать сначала",
-    version: "Код этого приложения доступен на GitHub: "
+    button: "Начать сначала ",
+    version: "Код этого приложения доступен на GitHub: ",
   },
   en: {
     title: "About WePick!",
     main: "WePick! is a convenient tool for choosing movies, \nseries, or other content that everyone will enjoy.\nYou set common filters, and we suggest the perfect option.",
-    button: "Start over",
-    version: "The code for this application is available on GitHub: "
-  }
-}
-
+    button: "Start over ",
+    version: "The code for this application is available on GitHub: ",
+  },
+};
 
 export default function Header({ lang = "ua", setLang, resetAll }) {
   const [open, setOpen] = useState(false);
@@ -38,16 +37,16 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
         open &&
         menuRef.current &&
         !menuRef.current.contains(event.target) &&
-        !event.target.closest('.hamburger') &&
-        !event.target.closest('.lang-select')
+        !event.target.closest(".hamburger") &&
+        !event.target.closest(".lang-select")
       ) {
         setOpen(false);
       }
     }
-    
+
     // Добавляем слушатель события на весь документ
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     // Очистка слушателя события при размонтировании компонента
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -61,9 +60,9 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
     <header className="header">
       <div className="logo">WePick!</div>
       <div className="header-right">
-        <select 
-          value={lang} 
-          onChange={(e) => setLang(e.target.value)} 
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
           aria-label="language"
           className="lang-select"
         >
@@ -72,46 +71,46 @@ export default function Header({ lang = "ua", setLang, resetAll }) {
           <option value="en">English</option>
         </select>
 
-        <button 
-          className="hamburger" 
-          onClick={() => setOpen(o => !o)} 
+        <button
+          className="hamburger"
+          onClick={() => setOpen((o) => !o)}
           aria-label="menu"
         >
-          {open ? '×' : '≡'} 
+          {open ? "×" : "≡"}
         </button>
-        
+
         {/* Меню с применением рефа и динамическим классом для анимации */}
-        <div 
-          ref={menuRef} 
-          className={`menu ${open ? 'menu-open' : 'menu-closed'}`}
+        <div
+          ref={menuRef}
+          className={`menu ${open ? "menu-open" : "menu-closed"}`}
         >
           <div className="menu-content">
             {/* Динамический заголовок */}
             <h3 className="menu-title">{currentTexts.title}</h3>
-            
+
             {/* Динамическое описание с поддержкой переноса строк */}
             <p>
-              {currentTexts.main.split('\n').map((line, i) => (
+              {currentTexts.main.split("\n").map((line, i) => (
                 <React.Fragment key={i}>
                   {line}
-                  {i < currentTexts.main.split('\n').length - 1 && <br />}
+                  {i < currentTexts.main.split("\n").length - 1 && <br />}
                 </React.Fragment>
               ))}
             </p>
-            
-            <div className="menu-button-container"> 
-              <button 
-                onClick={resetAll}
-                className="btn btn-reset"
-              >
+
+            <div className="menu-button-container">
+              <button onClick={resetAll} className="btn btn-reset">
                 {/* Динамический текст кнопки */}
                 {currentTexts.button}
               </button>
             </div>
-            
+
             {/* Динамическая информация о версии */}
             <p className="menu-version">{currentTexts.version}</p>
-             <a href="https://github.com/art1xee/WePick" className="menu-github"> WePick!</a>
+            <a href="https://github.com/art1xee/WePick" className="menu-github">
+              {" "}
+              WePick!
+            </a>
           </div>
         </div>
       </div>

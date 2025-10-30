@@ -20,7 +20,38 @@ const genresToIds = (genresName) => {
   return genresName.map((name) => TMDB_GENRE_MAPPING[name]).filter(Boolean);
 };
 
-// Получить фильмы по жанрам и декаде
+// ✅ НОВОЕ: Вспомогательная функция для получения нескольких страниц
+const fetchMultiplePages = async (baseUrl, params, maxPages = 3) => {
+  const allResults = [];
+
+  for (let page = 1; page <= maxPages; page++) {
+    try {
+      const pageParams = new URLSearchParams({
+        ...Object.fromEntries(params.entries()),
+        page: page.toString(),
+      }).toString();
+
+      const response = await fetch(`${baseUrl}?${pageParams}`);
+      const data = await response.json();
+
+      if (data.results && data.results.length > 0) {
+        allResults.push(...data.results);
+      } else {
+        break; // Если нет результатов, прекращаем загрузку
+      }
+
+      // Небольшая задержка между запросами для избежания rate limit
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    } catch (error) {
+      console.error(`Ошибка при загрузке страницы ${page}:`, error);
+      break;
+    }
+  }
+
+  return allResults;
+};
+
+// ✅ ОБНОВЛЕНО: Получаем больше фильмов (до 60 результатов)
 export const fetchMovies = async (
   likes,
   dislikes,
@@ -45,11 +76,16 @@ export const fetchMovies = async (
       }),
       vote_count_gte: "100",
       language,
-    }).toString();
+    });
 
-    const response = await fetch(`${BASE_URL}/discover/movie?${params}`);
-    const data = await response.json();
-    return data.results.map((m) => ({
+    // ✅ Получаем 3 страницы результатов (до 60 фильмов)
+    const results = await fetchMultiplePages(
+      `${BASE_URL}/discover/movie`,
+      params,
+      3
+    );
+
+    return results.map((m) => ({
       id: m.id,
       title: m.title,
       overview: m.overview,
@@ -65,6 +101,7 @@ export const fetchMovies = async (
   }
 };
 
+// ✅ ОБНОВЛЕНО: Получаем больше сериалов (до 60 результатов)
 export const fetchTVShows = async (
   likes,
   dislikes,
@@ -85,12 +122,16 @@ export const fetchTVShows = async (
       ...(dateRange.yearLte && { "first_air_date.lte": dateRange.yearLte }),
       vote_count_gte: "100",
       language,
-    }).toString();
+    });
 
-    const response = await fetch(`${BASE_URL}/discover/tv?${params}`);
-    const data = await response.json();
+    // ✅ Получаем 3 страницы результатов (до 60 сериалов)
+    const results = await fetchMultiplePages(
+      `${BASE_URL}/discover/tv`,
+      params,
+      3
+    );
 
-    return data.results.map((s) => ({
+    return results.map((s) => ({
       id: s.id,
       title: s.name || s.original_name,
       overview: s.overview,
@@ -106,110 +147,8 @@ export const fetchTVShows = async (
   }
 };
 
-// ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ для выполнения запроса к API
-const _fetchContent = async (
-  contentType,
-  allLikes,
-  allDislikes,
-  decade,
-  language
-) => {
-  let results = [];
-
-  // Для аниме используем Jikan API
-  if (contentType === "anime") {
-    console.log("Fetching anime from Jikan API...");
-    results = await fetchAnime(allLikes, allDislikes, decade);
-  }
-  // Для фильмов используем TMDb
-  else if (contentType === "movie") {
-    console.log("Fetching movies from TMDb...");
-    results = await fetchMovies(allLikes, allDislikes, decade, language);
-  }
-  // Для сериалов используем TMDb
-  else if (contentType === "series") {
-    console.log("Fetching TV shows from TMDb...");
-    results = await fetchTVShows(allLikes, allDislikes, decade, language);
-  }
-
-  return results.sort((a, b) => b.rating - a.rating).slice(0, 20);
-};
-
-// Получить контент для двух участников (обновлено для двухуровневого поиска)
-export const fetchContentForParticipants = async (
-  participants,
-  contentType,
-  language = "en-US"
-) => {
-  // 1. Идентифицируем участников
-  const user = participants.find((p) => !p.isCharacter);
-  const character = participants.find((p) => p.isCharacter);
-
-  let didWeaken = false;
-
-  // 2. Объединяем ВСЕ лайки и дизлайки (Попытка 1)
-  let allLikes = [...new Set(participants.flatMap((p) => p.likes || []))];
-  let allDislikes = [...new Set(participants.flatMap((p) => p.dislikes || []))];
-
-  // Берем декаду пользователя, если есть, иначе дефолтное значение
-  const decade = user?.decade || 2000;
-
-  console.log("Fetching content with params:", {
-    contentType,
-    allLikes,
-    allDislikes,
-    decade,
-    language,
-  });
-
-  // ПОПЫТКА 1: Строгий поиск
-  let results = await _fetchContent(
-    contentType,
-    allLikes,
-    allDislikes,
-    decade,
-    language
-  );
-
-  console.log(`Attempt 1: Found ${results.length} results`);
-
-  // ПОПЫТКА 2: Ослабленный поиск (если нет результатов И есть персонаж)
-  if (results.length === 0 && character) {
-    console.warn(
-      "Нет результатов с полными фильтрами. Повторный поиск без жанров персонажа."
-    );
-
-    // Пересчитываем лайки/дизлайки, ИСКЛЮЧАЯ те, что от персонажа
-    const userLikes = user?.likes || [];
-    const userDislikes = user?.dislikes || [];
-
-    allLikes = [...new Set(userLikes)];
-    allDislikes = [...new Set(userDislikes)];
-
-    // Повторный запрос
-    results = await _fetchContent(
-      contentType,
-      allLikes,
-      allDislikes,
-      decade,
-      language
-    );
-
-    console.log(`Attempt 2: Found ${results.length} results`);
-    didWeaken = true;
-  }
-
-  // Возвращаем объект, чтобы передать результаты и флаг
-  return {
-    results,
-    didWeakenFilters: didWeaken,
-    characterName: character ? character.name : null,
-  };
-};
-
 export default {
   fetchMovies,
   fetchTVShows,
-  fetchContentForParticipants,
   getDecadeDateRange,
 };
