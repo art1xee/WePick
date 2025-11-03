@@ -1,5 +1,6 @@
 import React from "react";
 
+// localized object for all text on the summary screen.
 const labels = {
   ua: {
     title: "Підсумок вибору:",
@@ -42,21 +43,33 @@ const labels = {
   },
 };
 
+/**
+ * A component that displays a summary of all selections made by the paricipants.
+ * It shows the chosen content type, and each participiant`s name, liked genres, and decade preferences.
+ * @param {object} props - the component props.
+ * @param {string} props.lang - the current language code.
+ * @param {array} props.participiants - an array of participant objects with their preferences.
+ * @param {string} props.contentType - the key for the selected content type (e.g., 'movie')
+ * @param {function} props.onFind - the callback function to initiate the search for content.
+ * @param {boolean} props.loading - a flag indicating if the search is in progress.
+ * @returns {JSX.Element} the rendered summary screen.
+ */
+
 export default function Summary({
   lang = "ua",
   participants,
   contentType,
   onFind,
-  loading, // Принимаем loading как проп
+  loading,
 }) {
-  // Content type options with translations
+  // Options for content types with their localizations.
   const contentTypeOptions = [
     { key: "movie", label: { ua: "Фільми", ru: "Фильмы", en: "Movie's" } },
     { key: "series", label: { ua: "Серіали", ru: "Сериалы", en: "Series" } },
     { key: "anime", label: { ua: "Аніме", ru: "Аниме", en: "Anime's" } },
   ];
 
-  // Genres with translations
+  // Base genres list with localizations
   const GENRES = {
     ua: [
       "Бойовик",
@@ -126,6 +139,7 @@ export default function Summary({
     ],
   };
 
+  // additional, more specific genre list with localizations.
   const ADDITIONAL = {
     ua: [
       "Психологічний",
@@ -195,18 +209,24 @@ export default function Summary({
     ],
   };
 
-  // Function to translate genres
+  /**
+   * Translates a list of genres to the current language.
+   * this is necessary because a participant`s preferences might have been set in a different language.
+   * @param {string[]} genres - an array of genre names to translate
+   * @returns {string[]} the translated list of genres
+   */
   const translateGenres = (genres) => {
     if (!genres || !Array.isArray(genres)) return [];
 
     return genres.map((genre) => {
-      // Try to find the genre in current language
+      // combine all genres for the current language.
       const allGenres = [...GENRES[lang], ...ADDITIONAL[lang]];
+      // if the genre is already in the current language, no translation is needed.
       if (allGenres.includes(genre)) {
         return genre; // Already in correct language
       }
 
-      // Try to find in other languages and translate
+      // in not, search in other languages to find its index and get the corresponding translation.
       for (const otherLang of ["ua", "ru", "en"]) {
         if (otherLang === lang) continue;
 
@@ -214,15 +234,21 @@ export default function Summary({
         const currentGenres = [...GENRES[lang], ...ADDITIONAL[lang]];
 
         const index = otherGenres.findIndex((g) => g === genre);
+        // if found, return the genre at the same index from the current language`s list
         if (index !== -1 && index < currentGenres.length) {
           return currentGenres[index];
         }
       }
 
+      // if no translation if found, return the original genre name.
       return genre; // Return original if not found
     });
   };
 
+  /**
+   * Gets the localized text for the main action button, (e.g., 'Find a Movie!')
+   * @returns {string} the formatted button text.
+   */
   const getContentType = () => {
     const template = labels[lang].next;
     // Get content type dynamically based on current language and stored key
@@ -236,6 +262,10 @@ export default function Summary({
     return template.replace("{content}", contentString);
   };
 
+  /**
+   * Gets the localized name of the content type for display in the summary.
+   * @returns {string} the localized content type name (e.g., "Movie`s")
+   */
   const getContentTypeForDisplay = () => {
     // Get content type dynamically based on current language and stored key
     const contentTypeKey = contentType; // This is the key like "movie", "series", "anime"
@@ -252,6 +282,7 @@ export default function Summary({
       <div className="summary-content">
         <h2 className="summary-title">{labels[lang].title}</h2>
 
+        {/* section displaying the chosen content type */}
         <div className="content-type-section">
           <p className="content-type-info">
             {labels[lang].content_type}
@@ -261,6 +292,7 @@ export default function Summary({
           </p>
         </div>
 
+        {/* section displaying the preferences for each participant */}
         <div className="participants-section">
           {participants.map((p, i) => (
             <div
@@ -271,6 +303,8 @@ export default function Summary({
             >
               <div className="participant-header">
                 <h4 className="participant-name">
+                  {/* display name differently fot the user vs. a friend or character */}
+
                   {i === 0
                     ? labels[lang].your_name + p.name
                     : p.isCharacter
@@ -280,6 +314,8 @@ export default function Summary({
               </div>
 
               <div className="participant-preferences">
+                {/* disliked genres */}
+
                 <div className="preference-item dislike-content">
                   <span className="preference-label">
                     {labels[lang].dont_want_watch}
@@ -294,10 +330,11 @@ export default function Summary({
                         ))}
                       </ul>
                     ) : (
-                      "Немає"
+                      "Немає" // none
                     )}
                   </span>
                 </div>
+                {/* liked genres */}
 
                 <div className="preference-item like-content">
                   <span className="preference-label">
@@ -313,30 +350,32 @@ export default function Summary({
                         ))}
                       </ul>
                     ) : (
-                      "Немає"
+                      "Немає" // none
                     )}
                   </span>
                 </div>
 
+                {/*decade preferences */}
                 <div className="preference-item decade-content">
                   <span className="preference-label">
                     {labels[lang].decade}
                   </span>
                   <span className="preference-value">
-                    {p.decade || "Не вибрано"}
+                    {p.decade || "Не вибрано"} {/* not selected */}
                   </span>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
+        {/* final action button to start the search */}
         <div className="action-section">
           <button
             className="btn btn-active summary-action-btn"
             onClick={onFind}
-            disabled={loading} // Отключаем кнопку во время загрузки
+            disabled={loading} // disable the button while loading
           >
+            {/* show loading text or the default button text */}
             {loading ? "Загрузка..." : getContentType()}
           </button>
         </div>

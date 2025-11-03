@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+//localization obj for various texts on the page based on language.
 const labels = {
   ua: {
     title: "Зустріньте свою кінопару!",
@@ -58,20 +59,32 @@ const labels = {
   },
 };
 
+/**
+ * Generated a URL to an external stie (MyAnimeList or IMDB) for more details about the content.
+ * @param {obj} movie - the movie or anime obj
+ * @param {*} contentType - the type of content ('anime', 'movie' etc.)
+ * @returns {string} A URL for detailed information.
+ */
 const linksAboutContent = (movie, contentType) => {
-  // if it is anime and has direct MAL link
+  // if it is anime and has direct MAL URL, use it.
   if (contentType === "anime" && movie.malUrl) {
     return movie.malUrl;
   }
-  // if it is anime but no malUrl, search on MAL
+  // if it is anime wihout a direct URL, creare a search query for MAL.
   if (contentType === "anime") {
     const searchQuery = encodeURIComponent(movie.title);
     return `https://myanimelist.net/anime.php?q=${searchQuery}`;
   }
-  // for movies and series use a IMDB
+  // for movies and series, create a search qeury for IMDb.
   const searchQuery = encodeURIComponent(`${movie.title} ${movie.year}`);
   return `https://www.imdb.com/find?q=${searchQuery}`;
 };
+
+/**
+ * A simple component to disply a loading animation and text.
+ * @param {obj} props - component props.
+ * @param {obj} props.text - localized text obj.
+ */
 
 const LoadingScreen = ({ text }) => (
   <div className="result-screen">
@@ -84,6 +97,12 @@ const LoadingScreen = ({ text }) => (
   </div>
 );
 
+/**
+ * A component to display when no result are found.
+ * @param {obj} props - component props.
+ * @param {obj} props.text - localized text object.
+ * @param {function} props.onRestart - callback to start the process over.
+ */
 const NoResult = ({ text, onRestart }) => (
   <div className="result-noresult-screen">
     <h2 className="result-noresult-title">{text.no_results}</h2>
@@ -96,9 +115,20 @@ const NoResult = ({ text, onRestart }) => (
   </div>
 );
 
+/**
+ * A component to display a wirning message if one exist.
+ * @param {obj} props - Component props.
+ * @param {obj} props.message - the warning message to display
+ */
 const WarningMessage = ({ message }) =>
   message && <div className="result-warning-message">{message}</div>;
 
+/**
+ * A header component for the results screen.
+ * @param {obj} props - Component props
+ * @param {string} props.title - the main title text.
+ * @param {string} props.warningMessage - an optional warning message
+ */
 const ResultHeader = ({ title, warningMessage }) => (
   <>
     <h2 className="result-title">{title}</h2>
@@ -106,13 +136,20 @@ const ResultHeader = ({ title, warningMessage }) => (
   </>
 );
 
+/**
+ * A component that displays the detail of a single movie\anime result.
+ * @param {obj} props - component props.
+ * @param {obj} props.current - the movie/anime object to display
+ * @param {string} props.contentType - The type of content.
+ * @param {object} props.text - localized text object
+ */
 const ResultCard = ({ current, contentType, text }) => (
   <div className="result-content">
     <h3 className="result-name">
       {current.title}
       {current.year && ` (${current.year})`}
     </h3>
-
+    {/* display poster image or a placeholder if not available*/}
     {current.poster ? (
       <img src={current.poster} alt={current.title} className="result-poster" />
     ) : (
@@ -120,12 +157,14 @@ const ResultCard = ({ current, contentType, text }) => (
     )}
 
     <div className="result-info">
+      {/* display rating if available */}
+
       {current.rating && (
         <p>
           <strong>{text.rating}</strong> ⭐ {current.rating.toFixed(1)}/10
         </p>
       )}
-      {/*content type display*/}
+      {/*displays content type for anime*/}
       {contentType === "anime" && current.type && (
         <p>
           <strong>{text.type}</strong>
@@ -133,7 +172,7 @@ const ResultCard = ({ current, contentType, text }) => (
         </p>
       )}
 
-      {/*episodes display*/}
+      {/* displays episodes count for anime*/}
       {contentType === "anime" && current.episodes && (
         <p>
           <strong>{text.episodes}</strong> {current.episodes}
@@ -143,8 +182,19 @@ const ResultCard = ({ current, contentType, text }) => (
   </div>
 );
 
+/**
+ * A component that holds all the action buttons for the result screen.
+ * @param {obj} props - component props.
+ * @param {string} props.detailLinks - URL for the detail button.
+ * @param {obj} props.text - lcoalized text object
+ * @param {function} props.onNext - callback to show the next result
+ * @param {function} props.onReload - callback to reload the search
+ * @param {function} props.onRestart - callback to start over.
+ * @returns
+ */
 const ResultActions = ({ detailsLinks, text, onNext, onReload, onRestart }) => (
   <div className="result-actions" style={{ marginTop: "30px" }}>
+    {/* button to show the next item in the results list */}
     <div className="result-more-button">
       <button
         onClick={onNext}
@@ -155,6 +205,7 @@ const ResultActions = ({ detailsLinks, text, onNext, onReload, onRestart }) => (
       </button>
     </div>
 
+    {/* button to trigger a new search woth the same preferences */}
     <div className="result-reload-button">
       <button
         onClick={onReload}
@@ -164,7 +215,7 @@ const ResultActions = ({ detailsLinks, text, onNext, onReload, onRestart }) => (
         {text.reload_button}
       </button>
     </div>
-
+    {/* button to ga back to the very first screen */}
     <div className="result-restart-button">
       <button onClick={onRestart} className="btn btn-reset">
         {text.restart_button}
@@ -174,6 +225,20 @@ const ResultActions = ({ detailsLinks, text, onNext, onReload, onRestart }) => (
 );
 
 //================== RESULT SCREEN COMPONENT ==========================
+
+/**
+ * The main component for displaying the results of the content search.
+ * It handles loading states, no-result states, and cycles through the matched content.
+ * @param {object} props - component props.
+ * @param {array} props.movie - an array of movie/anime objects.
+ * @param {function} props.onRestart - callback ro restart the entire flow.
+ * @param {function} props.onReload - callback to fetch a new set of results with the same preferences.
+ * @param {string} props.lang - the current language code.
+ * @param {boolean} props.loading - flag indicating if the content is currently being fetched
+ * @param {boolean} props.didWeakenFiltes - flas indicating if search filters were relaxed
+ * @param {boolean} props.characterName - the name of the character partner, for warning message.
+ * @param {string} props.contentType - the type of content being displayed.
+ */
 export default function Results({
   movies = [],
   onRestart,
@@ -184,23 +249,27 @@ export default function Results({
   characterName = null,
   contentType = null,
 }) {
+  // state to keep track of the current index on the movies array.
   const [idx, setIdx] = useState(0);
+  // get the localized text object for the current language.
   const text = labels[lang];
 
-  // show loading screen
+  // if loading, show the loading screen and stop.
   if (loading) {
     return <LoadingScreen text={text} />;
   }
 
-  // if we dont have any content to show
+  // if there are no movies, show 'No result' screen and stop.
   if (!movies || movies.length === 0) {
     return <NoResult text={text} onRestart={onRestart} />;
   }
 
+  // the currently displayed movie object.
   const current = movies[idx];
+  // function to advance to the next movie, looping back to the start if at the end.
   const next = () => setIdx((i) => (i + 1) % movies.length);
 
-  // formating a wanring message if filters were weakened
+  // format the warning message if filters were weakened, inserting the character`s name.
   const warningMessage = didWeakenFilters
     ? text.weakened_filters_warning.replace(
         "{characterName}",
@@ -208,20 +277,24 @@ export default function Results({
       )
     : null;
 
-  // getting links about content
+  // getting the external details link for the current item.
   const detailsLinks = linksAboutContent(current, contentType);
 
-  // main render
+  // main render of the result screen.
   return (
     <div className="result-screen">
+      {/* render the header with title and optional warning */}
       <ResultHeader title={text.title} warningMessage={warningMessage} />
+      {/* render the catd with the movie/anime details */}
+
       <ResultCard current={current} contentType={contentType} text={text} />
 
-      {/* show user how many pages with content left*/}
+      {/* displays the current position in the result list (e.g., "1 / 10")*/}
       <div className="result-index">
         {idx + 1} / {movies.length}
       </div>
 
+      {/* render the action buttons */}
       <ResultActions
         text={text}
         onNext={next}
