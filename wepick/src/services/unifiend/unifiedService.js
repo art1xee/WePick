@@ -1,12 +1,13 @@
-// unifiedService.js - Единая точка входа для всех типов контента
+// unifiedService.js - Acts as a single entry point for fetching all types of content.
 
 import { fetchMovies, fetchTVShows } from "../tmdb/tmdbService.js";
-import { fetchAnime } from "../jikan/jikanService.js"; // <--- ИСПРАВЛЕНО имя импорта
+import { fetchAnime } from "../jikan/jikanService.js";
 
-function preferencesFromParticipants(participants) {
-  return participants.flatMap((p) => p.likes || []);
-}
-
+/**
+ * Checks if the user preferences contain any keywords related to anime.
+ * @param {string[]} preferences - An array of user preference strings.
+ * @returns {boolean} True if an anime-related keyword is found.
+ */
 function hasAnimePref(preferences) {
   const lower = preferences.map((s) => String(s).toLowerCase());
   return lower.some((p) =>
@@ -14,7 +15,11 @@ function hasAnimePref(preferences) {
   );
 }
 
-// function for shuffling arrays
+/**
+ * A utility function to shuffle an array in place using the Fisher-Yates algorithm.
+ * @param {Array} array - The array to be shuffled.
+ * @returns {Array} The shuffled array.
+ */
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -25,7 +30,14 @@ function shuffleArray(array) {
 }
 
 /**
- * Вспомогательная функция для получения контента TMDb (нужна для логики ослабления фильтров)
+ * An internal helper function to fetch content from TMDb, abstracting the choice between movies and series.
+ * This is used for the filter-weakening logic.
+ * @param {string[]} likes - Liked genre names.
+ * @param {string[]} dislikes - Disliked genre names.
+ * @param {number} decade - The desired decade.
+ * @param {string} contentType - The type of content ("series" or "movie").
+ * @param {string} language - The language for the API results.
+ * @returns {Promise<Array<object>>} A promise resolving to an array of TMDb results.
  */
 const _fetchTMDBContent = async (
   likes,
@@ -40,41 +52,46 @@ const _fetchTMDBContent = async (
 };
 
 /**
- * Unified fetch: Jikan для аниме, TMDb для остального
+ * The main unified fetch function. It determines whether to use the Jikan API (for anime)
+ * or the TMDb API (for movies/series) and includes a fallback mechanism to broaden the search if necessary.
+ * @param {Array<object>} participants - An array of participant objects with their preferences.
+ * @param {string} contentType - The selected type of content ("movie", "series", or "anime").
+ * @param {string} [language="en-US"] - The language for the results.
+ * @returns {Promise<object>} A promise resolving to an object containing the results, a flag for weakened filters, and the character's name.
  */
 export async function fetchContentForParticipantsUnified(
   participants,
   contentType,
   language = "en-US"
 ) {
-  // 1. indetification all users
+  // 1. Identify the user and the character (if any) from the participants list.
   const user = participants.find((p) => !p.isCharacter);
   const character = participants.find((p) => p.isCharacter);
-  let didWeaken = false;
+  let didWeaken = false; // Flag to indicate if filters were relaxed.
 
-  // 2. merging all likes & dislikes
+  // 2. Merge all likes and dislikes from all participants into unique lists.
   let allLikes = [...new Set(participants.flatMap((p) => p.likes || []))];
   let allDislikes = [...new Set(participants.flatMap((p) => p.dislikes || []))];
   const decade = participants[0]?.decade || 2000;
 
-  // 3. if we have a reminder "anime" or chosen type "anime" - using JIKAN api
+  // 3. If "anime" is preferred or explicitly selected, use the Jikan API.
   if (hasAnimePref(allLikes) || contentType === "anime") {
     const jikanResults = await fetchAnime(allLikes, allDislikes, decade, 60);
-
     const shuffled = shuffleArray(jikanResults);
 
+    // Return the results in the standardized format.
     return {
-      results: shuffled.slice(0, 20),
-      didWeakenFilters: false,
+      results: shuffled.slice(0, 20), // Limit to 20 results.
+      didWeakenFilters: false, // Jikan search does not use the weakening logic.
       characterName: character?.name || null,
     };
   }
 
   // =================================================================
-  // ИНАЧЕ - TMDb с логикой ослабления фильтров
+  // Otherwise, use TMDb with a filter-weakening fallback strategy.
   // =================================================================
 
-  // ПОПЫТКА 1: Строгий поиск со ВСЕМИ предпочтениями
+  // ATTEMPT 1: Strict search using preferences from all participants.
   let results = await _fetchTMDBContent(
     allLikes,
     allDislikes,
@@ -83,12 +100,12 @@ export async function fetchContentForParticipantsUnified(
     language
   );
 
-  // ПОПЫТКА 2: Ослабленный поиск (если нет результатов И есть персонаж)
+  // ATTEMPT 2: If the strict search yields no results AND there's a character partner,
+  // weaken the filters by searching again with only the human user's preferences.
   if (results.length === 0 && character) {
     console.warn(
-      "Нет результатов с полными фильтрами TMDb. Повторный поиск без жанров персонажа."
+      "No results with full TMDb filters. Retrying without character's genre preferences."
     );
-    // Повторный запрос только с предпочтениями пользователя
     results = await _fetchTMDBContent(
       user?.likes || [],
       user?.dislikes || [],
@@ -96,31 +113,34 @@ export async function fetchContentForParticipantsUnified(
       contentType,
       language
     );
-    didWeaken = true;
+    didWeaken = true; // Set the flag to true to notify the UI.
   }
 
-  // Маппинг результатов TMDb в унифицированный формат
+  // Map the TMDb results to the application's unified data format.
   const mapped = (results || []).map((r) => ({
     id: r.id,
     title: r.title || r.name,
     overview: r.overview || null,
     rating: r.vote_average ?? r.rating ?? null,
+    // Use the poster path from TMDb or a poster URL from another source if available.
     poster: r.poster_path
       ? `https://image.tmdb.org/t/p/w500${r.poster_path}`
       : r.poster || null,
+    // Extract the year from the release date.
     year: r.release_date
       ? Number(r.release_date.slice(0, 4))
       : r.first_air_date
       ? Number(r.first_air_date.slice(0, 4))
       : null,
     source: "tmdb",
-    raw: r,
+    raw: r, // Keep the original raw data.
   }));
 
   const shuffled = shuffleArray(mapped);
 
+  // Return the final structured result.
   return {
-    results: shuffled.slice(0, 20),
+    results: shuffled.slice(0, 20), // Limit to 20 results.
     didWeakenFilters: didWeaken,
     characterName: character?.name || null,
   };
